@@ -1,8 +1,8 @@
 # Pierre Feuille Ciseaux
 
-**Navigation :** 
+**Navigation :**
 
-- Lancer une partie : 
+- Lancer une partie :
 
 - Recommencer une partie :
 
@@ -12,6 +12,22 @@
 
 **Lancement d'une partie :**
 
-- Sélection du nombre de manches : 
+- Sélection du nombre de manches :
 
 - Pause :
+
+## Installation :
+
+Installer pipenv : `pip install --user pipenv`
+
+`pipenv install`
+
+`python3 fer.py`
+
+## Pour créer le pipfile de 0
+
+`pipenv install numpy`
+
+`pipenv install opencv-python`
+
+`pip install tensorflow==2.4.1`
