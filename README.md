@@ -1,33 +1,22 @@
 # Pierre Feuille Ciseaux
 
-**Navigation :**
-
-- Lancer une partie :
-
-- Recommencer une partie :
-
-- Retour :
-
-- Quitter le programme :
-
-**Lancement d'une partie :**
-
-- Sélection du nombre de manches :
-
-- Pause :
-
 ## Installation :
 
-Installer pipenv : `pip install --user pipenv`
+Installer virutalenv : `sudo pip3 install virtualenv`
 
-`pipenv install`
+Créer un environement virtuel : `python3 -m venv ~/.local/venvs/ihme`
 
-`python3 fer.py`
+Activer l'environnement virtuel : `source ~/.local/venvs/tihme/bin/activate`
 
-## Pour créer le pipfile de 0
+Installer les librairies nécessaires :
 
-`pipenv install numpy`
+- `pip install -U numpy`
+- `pip install -U opencv-contrib-python`
 
-`pipenv install opencv-python`
+Désactiver l'environnement virtuel : `deactivate`
 
-`pip install tensorflow==2.4.1`
+## Lancer le programme :
+
+Activer l'environnement virtuel : `source ~/.local/venvs/tihme/bin/activate`
+
+Taper : `python3 pfc.py`
