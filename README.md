@@ -6,7 +6,7 @@ Installer virutalenv : `sudo pip3 install virtualenv`
 
 Créer un environement virtuel : `python3 -m venv ~/.local/venvs/ihme`
 
-Activer l'environnement virtuel : `source ~/.local/venvs/tihme/bin/activate`
+Activer l'environnement virtuel : `source ~/.local/venvs/ihme/bin/activate`
 
 Installer les librairies nécessaires :
 
