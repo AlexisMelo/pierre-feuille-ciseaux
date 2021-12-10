@@ -10,8 +10,10 @@ Activer l'environnement virtuel : `source ~/.local/venvs/ihme/bin/activate`
 
 Installer les librairies nécessaires :
 
+- `pip install -U wheel`
 - `pip install -U numpy`
 - `pip install -U opencv-contrib-python`
+- `pip install -U mediapipe`
 
 Désactiver l'environnement virtuel : `deactivate`
 
