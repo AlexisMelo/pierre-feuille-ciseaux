@@ -4,18 +4,15 @@
 
 Installer virutalenv : `sudo pip3 install virtualenv`
 
-Créer un environement virtuel : `python3 -m venv ~/.local/venvs/ihme`
+Créer un environement virtuel : `python3 -m venv venv`
 
-Activer l'environnement virtuel : `source ~/.local/venvs/ihme/bin/activate`
+Activer l'environnement virtuel : `source venv/bin/activate`
 
-Installer les librairies nécessaires :
-
-- `pip install -U wheel`
-- `pip install -U numpy`
-- `pip install -U opencv-contrib-python`
-- `pip install -U mediapipe`
+Installer les librairies nécessaires : pip3 install -r requirements.txt
 
 Désactiver l'environnement virtuel : `deactivate`
+
+Mettre à jour les libraries nécessaires : pip freeze > requirements.txt
 
 ## Lancer le programme :
 
