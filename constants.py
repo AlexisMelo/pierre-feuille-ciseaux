@@ -17,3 +17,9 @@ POSSIBLE_GESTURES = [
     LAUNCH_GAME,
     STATISTICS
 ]
+
+### WINNER ###
+PLAYER_WIN = "player_win"
+COMPUTER_WIN = "computer_win"
+
+
