@@ -16,6 +16,6 @@ Mettre à jour les libraries nécessaires : pip freeze > requirements.txt
 
 ## Lancer le programme :
 
-Activer l'environnement virtuel : `source ~/.local/venvs/tihme/bin/activate`
+Activer l'environnement virtuel : `source ~/.local/venvs/ihme/bin/activate`
 
 Taper : `python3 pfc.py`
