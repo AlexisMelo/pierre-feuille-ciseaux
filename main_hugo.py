@@ -16,7 +16,7 @@ def run_app():
 
         # Faire le traitement et les modifications d'images ici
         # e.g. : frame = iu.write_score(frame)
-        frame = du.get_landmarks(frame)
+        frame, dico = du.get_landmarks(frame, draw=True)
 
         # Display the resulting frame
         cv2.imshow("frame", frame)
@@ -24,6 +24,7 @@ def run_app():
         # Press 'q' to quit
         key = cv2.pollKey() & 0xFF
         if key == ord("q"):
+            print(dico)
             break
 
     # After the loop release the cap object

@@ -34,8 +34,24 @@ def get_starting_gesture(img):
     pass
 
 
-def get_landmarks(img):
-    """
+def get_landmarks(img, draw=False):
+    """Get the landmarks of the hand if present in img.
+
+    Extract the landmarks of 1 or 2 hands on img. Landmaks are discribed in
+    https://google.github.io/mediapipe/solutions/hands.html
+
+    Parameters
+    ----------
+    img -- the image to hand landmarks from
+    draw -- a boolean to draw or not the detected landmarks on img (default False)
+
+    Return
+    ------
+    cv2.flip(img, 1) -- the same image as img but with landmarks if draw==True
+    dict_landmarks_coordinates -- a dict containing the landmarks
+
+    Note
+    ----
     Code obtained from https://google.github.io/mediapipe/solutions/hands
     """
 
@@ -51,19 +67,49 @@ def get_landmarks(img):
         img.flags.writeable = False
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = hands.process(img)
+        dict_landmarks_coordinates = None
 
         # Draw the hand annotations on the img.
         img.flags.writeable = True
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(
-                    img,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS,
-                    mp_drawing_styles.get_default_hand_landmarks_style(),
-                    mp_drawing_styles.get_default_hand_connections_style(),
+            if draw:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(
+                        img,
+                        hand_landmarks,
+                        mp_hands.HAND_CONNECTIONS,
+                        mp_drawing_styles.get_default_hand_landmarks_style(),
+                        mp_drawing_styles.get_default_hand_connections_style(),
+                    )
+            """
+            [
+                print(
+                    "x is",
+                    data_point.x,
+                    "y is",
+                    data_point.y,
+                    "z is",
+                    data_point.z,
+                    "visibility is",
+                    data_point.visibility,
                 )
+                for data_point in results.multi_hand_landmarks[0].landmark
+            ]"""
+
+            # Create a list of all the (x,y) normalized coordinates of the landmarks
+            # e.g. [(0.1251,0.1994), (0.1513,0.9482), ...]
+            list_coordinates = [
+                (data_point.x, data_point.y)
+                for data_point in results.multi_hand_landmarks[0].landmark
+            ]
+
+            # Create a dict to map landmarks ids (0 to 20) to their normalized (x,y) coordinates in img
+            # e.g. {0: (0.1251,0.1994), 1: (0.1513,0.9482), ..., 20: (0.8461,0.7138)}
+            # See https://google.github.io/mediapipe/solutions/hands.html for more details
+            dict_landmarks_coordinates = {
+                i: pos for i, pos in zip(range(21), list_coordinates)
+            }
 
         # Flip the image horizontally for a selfie-view display.
-        return cv2.flip(img, 1)
+        return cv2.flip(img, 1), dict_landmarks_coordinates
