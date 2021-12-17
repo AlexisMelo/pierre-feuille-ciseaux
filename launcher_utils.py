@@ -14,23 +14,22 @@ def run_app():
 
         # Faire le traitement et les modifications d'images ici
         # e.g. : frame = iu.write_score(frame)
-        start_gesture = get_starting_gesture()
+        start_gesture = du.get_starting_gesture(frame)
         if start_gesture == LAUNCH_GAME:
-            nb_rounds = get_number_of_rounds_posture()
+            nb_rounds = du.get_number_of_rounds_posture(frame)
             cpt = 0
-            while(cpt < nb_rounds):
-                posture_player = get_user_game_posture()
+            while cpt < nb_rounds:
+                posture_player = du.get_user_game_posture(frame)
                 posture_computer = get_computer_game_posture()
-                display_computer_game_posture()
+                frame = iu.display_computer_game_posture(frame)
                 winner = get_winner(posture_player, posture_computer)
-                display_winner_or_round(winner)
-                #mettre un sleeep pour laisser afficher le score quelques 
-                #secondes et empecher les interations
+                frame = iu.display_winner_or_round(frame, winner)
+                # mettre un sleeep pour laisser afficher le score quelques
+                # secondes et empecher les interations
                 cpt += 1
-            display_final_winner()
+            frame = iu.display_final_winner(frame, winner)
         elif start_gesture == STATISTICS:
-            display_scores_previous_games()
-
+            frame = iu.display_scores_previous_games(frame)
 
         # Display the resulting frame
         cv2.imshow("frame", frame)
@@ -45,14 +44,16 @@ def run_app():
     # Destroy all the windows
     cv2.destroyAllWindows()
 
+
 def get_winner(posture_player, posture_computer):
     win_gesture = get_gesture_winner(posture_player, posture_computer)
     if win_gesture == posture_player:
         return PLAYER_WIN
     else:
         return COMPUTER_WIN
-    
-def get_gesture_winner(g1,g2):
+
+
+def get_gesture_winner(g1, g2):
     if (g1 == CISEAUX and g2 == PIERRE) or (g2 == CISEAUX and g1 == PIERRE):
         return PIERRE
     elif (g1 == CISEAUX and g2 == FEUILLE) or (g2 == CISEAUX and g1 == FEUILLE):
@@ -60,5 +61,10 @@ def get_gesture_winner(g1,g2):
     elif (g1 == PIERRE and g2 == FEUILLE) or (g2 == PIERRE and g1 == FEUILLE):
         return FEUILLE
 
+
+def get_computer_game_posture():
+    return CISEAUX
+
+
 if __name__ == "__main__":
-    print "main"
+    run_app()

@@ -14,7 +14,7 @@ def get_user_game_posture(img):
     Return the symbol made by the hand on the image
     which is an element of POSSIBLE_GAME_POSTURES.
     """
-    pass
+    return FEUILLE
 
 
 def get_number_of_rounds_posture(img):
@@ -22,7 +22,7 @@ def get_number_of_rounds_posture(img):
     Return an integer : the number of stretched fingers
     corresponding to the numbers of rounds.
     """
-    pass
+    return NB_MAX_ROUND
 
 
 def get_starting_gesture(img):
@@ -31,7 +31,7 @@ def get_starting_gesture(img):
     which is an element of POSSIBLE_GESTURES
     Code obtained from https://google.github.io/mediapipe/solutions/hands
     """
-    pass
+    return LAUNCH_GAME
 
 
 def get_landmarks(img, draw=False):
@@ -82,20 +82,6 @@ def get_landmarks(img, draw=False):
                         mp_drawing_styles.get_default_hand_landmarks_style(),
                         mp_drawing_styles.get_default_hand_connections_style(),
                     )
-            """
-            [
-                print(
-                    "x is",
-                    data_point.x,
-                    "y is",
-                    data_point.y,
-                    "z is",
-                    data_point.z,
-                    "visibility is",
-                    data_point.visibility,
-                )
-                for data_point in results.multi_hand_landmarks[0].landmark
-            ]"""
 
             # Create a list of all the (x,y) normalized coordinates of the landmarks
             # e.g. [(0.1251,0.1994), (0.1513,0.9482), ...]
