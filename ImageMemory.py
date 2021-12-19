@@ -1,4 +1,5 @@
 from constants import *
+from detection_utils import get_landmarks
 
 
 class ImageMemory:
@@ -28,3 +29,27 @@ class ImageMemory:
             return self.memory[-1]
         else:
             return None
+
+    def recognize_start_gesture(self):
+        oldest_img = self._get_oldest_image()
+        newest_img = self._get_newest_image()
+        _, oldest_landmarks = get_landmarks(oldest_img)
+        _, newest_landmarks = get_landmarks(newest_img)
+
+        oldest_hand_on_left_side = self._is_hand_on_left_side(oldest_landmarks)
+        newest_hand_on_right_side = self._is_hand_on_right_side(newest_landmarks)
+
+        if oldest_hand_on_left_side and newest_hand_on_right_side:
+            return LAUNCH_GAME
+        else:
+            return None
+
+    def _is_hand_on_left_side(self, landmarks):
+        if landmarks and landmarks[4][0] > 0.6:
+            return True
+        return False
+
+    def _is_hand_on_right_side(self, landmarks):
+        if landmarks and landmarks[4][0] < 0.4:
+            return True
+        return False
