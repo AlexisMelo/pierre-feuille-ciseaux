@@ -29,24 +29,44 @@ class Memory:
         else:
             return None
 
-    def recognize_start_gesture(self):
+    def recognize_starting_gesture(self):
         oldest_landmarks = self._get_oldest_data()
         newest_landmarks = self._get_newest_data()
 
         oldest_hand_on_left_side = self._is_hand_on_left_side(oldest_landmarks)
         newest_hand_on_right_side = self._is_hand_on_right_side(newest_landmarks)
 
-        if oldest_hand_on_left_side and newest_hand_on_right_side:
-            return LAUNCH_GAME
-        else:
+        oldest_hand_at_top = self._is_hand_at_top(oldest_landmarks)
+        newest_hand_at_bottom = self._is_hand_at_bottom(newest_landmarks)
+
+        swipe_left_to_right = oldest_hand_on_left_side and newest_hand_on_right_side
+        swipe_top_to_bottom = oldest_hand_at_top and newest_hand_at_bottom
+
+        # If either both or none of the 2 gestures are detected, return None
+        if swipe_top_to_bottom == swipe_left_to_right:
             return None
+        else:
+            if swipe_left_to_right:
+                return LAUNCH_GAME
+            else:
+                return STATISTICS
 
     def _is_hand_on_left_side(self, landmarks):
-        if landmarks and landmarks[4][0] > 0.6:
+        if landmarks and landmarks[0][0] > 0.6:
             return True
         return False
 
     def _is_hand_on_right_side(self, landmarks):
-        if landmarks and landmarks[4][0] < 0.4:
+        if landmarks and landmarks[0][0] < 0.4:
+            return True
+        return False
+
+    def _is_hand_at_top(self, landmarks):
+        if landmarks and landmarks[0][1] < 0.4:
+            return True
+        return False
+
+    def _is_hand_at_bottom(self, landmarks):
+        if landmarks and landmarks[0][1] > 0.6:
             return True
         return False

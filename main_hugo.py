@@ -11,7 +11,8 @@ def run_app():
     # define a video capture object (0 = default webcam)
     vid = cv2.VideoCapture(0)
     im = Memory(memory_size=10)
-    i = 1
+    i = 0
+    j = 0
 
     while True:
         # Capture the video frame by frame
@@ -21,9 +22,13 @@ def run_app():
         # e.g. : frame = iu.write_score(frame)
         frame, landmarks = du.get_landmarks(frame, draw=True)
         im.add(landmarks)
-        if im.recognize_start_gesture() == LAUNCH_GAME:
+        gesture = du.get_starting_gesture(im)
+        if gesture == LAUNCH_GAME:
             i += 1
-            print("SWIPE ", i)
+            print("LAUNCH ", i)
+        elif gesture == STATISTICS:
+            j += 1
+            print("STATISTICS ", j)
 
         # Display the resulting frame
         cv2.imshow("frame", frame)

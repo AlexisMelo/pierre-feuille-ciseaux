@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from Memory import Memory
 from constants import *
 import mediapipe as mp
 
@@ -25,13 +26,16 @@ def get_number_of_rounds_posture(img):
     return NB_MAX_ROUND
 
 
-def get_starting_gesture(img):
+def get_starting_gesture(memory: Memory):
     """
     Return the gesture made by the hand on the image
     which is an element of POSSIBLE_GESTURES
     Code obtained from https://google.github.io/mediapipe/solutions/hands
     """
-    return LAUNCH_GAME
+    if memory:
+        return memory.recognize_starting_gesture()
+    else:
+        return None
 
 
 def get_landmarks(img, draw=False):
