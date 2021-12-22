@@ -1,40 +1,37 @@
 from constants import *
-from detection_utils import get_landmarks
 
 
-class ImageMemory:
-    """A class used to store previous images in order to recognize gestures"""
+class Memory:
+    """A class used to store previous images data in order to recognize gestures"""
 
     def __init__(self, memory_size=MEMORY_SIZE):
         assert memory_size > 0
         self.memory = []
         self.memory_size = memory_size
 
-    def add(self, img):
-        # If the memory is full, delete the oldest image
+    def add(self, data):
+        # If the memory is full, delete the oldest data
         if len(self.memory) >= self.memory_size:
             _ = self.memory.pop(0)
-        self.memory.append(img)
+        self.memory.append(data)
 
-    def _get_oldest_image(self):
-        """Return the oldest image stored in memory if exists"""
+    def _get_oldest_data(self):
+        """Return the oldest data stored in memory if exists"""
         if len(self.memory) != 0:
             return self.memory[0]
         else:
             return None
 
-    def _get_newest_image(self):
-        """Return the newest image stored in memory is exists"""
+    def _get_newest_data(self):
+        """Return the newest data stored in memory is exists"""
         if len(self.memory) != 0:
             return self.memory[-1]
         else:
             return None
 
     def recognize_start_gesture(self):
-        oldest_img = self._get_oldest_image()
-        newest_img = self._get_newest_image()
-        _, oldest_landmarks = get_landmarks(oldest_img)
-        _, newest_landmarks = get_landmarks(newest_img)
+        oldest_landmarks = self._get_oldest_data()
+        newest_landmarks = self._get_newest_data()
 
         oldest_hand_on_left_side = self._is_hand_on_left_side(oldest_landmarks)
         newest_hand_on_right_side = self._is_hand_on_right_side(newest_landmarks)
