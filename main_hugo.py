@@ -11,6 +11,7 @@ def run_app():
     # define a video capture object (0 = default webcam)
     vid = cv2.VideoCapture(0)
     im = Memory(memory_size=10)
+    draw = False
     i = 0
     j = 0
 
@@ -20,7 +21,7 @@ def run_app():
 
         # Faire le traitement et les modifications d'images ici
         # e.g. : frame = iu.write_score(frame)
-        frame, landmarks = du.get_landmarks(frame, draw=True)
+        frame, landmarks = du.get_landmarks(frame, draw)
         im.add(landmarks)
         gesture = du.get_starting_gesture(im)
         if gesture == LAUNCH_GAME:
@@ -35,6 +36,8 @@ def run_app():
 
         # Press 'q' to quit
         key = cv2.pollKey() & 0xFF
+        if key == ord("d"):
+            draw = not draw
         if key == ord("q"):
             break
 
