@@ -1,13 +1,16 @@
 import cv2
+import time
 import numpy as np
 import image_utils as iu
 import detection_utils as du
 from constants import *
+from random import randint
 
 
 def run_app():
     # define a video capture object (0 = default webcam)
     vid = cv2.VideoCapture(0)
+
     while True:
         # Capture the video frame by frame
         ret, frame = vid.read(0)
@@ -21,15 +24,15 @@ def run_app():
             while cpt < nb_rounds:
                 posture_player = du.get_user_game_posture(frame)
                 posture_computer = get_computer_game_posture()
-                frame = iu.display_computer_game_posture(frame)
+                frame = iu.display_computer_game_posture(frame, posture_computer)
+                #cv2.waitKey(1) pour attendre
                 winner = get_winner(posture_player, posture_computer)
                 frame = iu.display_winner_or_round(frame, winner)
-                # mettre un sleeep pour laisser afficher le score quelques
-                # secondes et empecher les interations
+                #cv2.waitKey(1) pour attendre
                 cpt += 1
-            frame = iu.display_final_winner(frame, winner)
+            #frame = iu.display_final_winner(frame, winner, " 5-3")
         elif start_gesture == STATISTICS:
-            frame = iu.display_scores_previous_games(frame)
+            #frame = iu.display_scores_previous_games(frame,scores) #score doit etre une liste ex : ["5-3","4-2","3-1","3-0"]
 
         # Display the resulting frame
         cv2.imshow("frame", frame)
@@ -63,7 +66,10 @@ def get_gesture_winner(g1, g2):
 
 
 def get_computer_game_posture():
-    return CISEAUX
+    random = randint(0, 2)
+    if random == 0: return CISEAUX
+    if random == 1: return PIERRE
+    if random == 2: return FEUILLE
 
 
 if __name__ == "__main__":
