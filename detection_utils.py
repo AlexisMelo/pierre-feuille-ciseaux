@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from Memory import Memory
+from Landmarks import Landmarks
 from constants import *
 import mediapipe as mp
 
@@ -94,7 +95,7 @@ def get_landmarks(img, draw=False):
                 for data_point in results.multi_hand_landmarks[0].landmark
             ]
 
-            # Create a dict to map landmarks ids (0 to 20) to their normalized (x,y) coordinates in img
+            # Create a dict to map keypoints ids (0 to 20) to their normalized (x,y) coordinates in img
             # e.g. {0: (0.1251,0.1994), 1: (0.1513,0.9482), ..., 20: (0.8461,0.7138)}
             # See https://google.github.io/mediapipe/solutions/hands.html for more details
             dict_landmarks_coordinates = {
@@ -102,4 +103,4 @@ def get_landmarks(img, draw=False):
             }
 
         # Flip the image horizontally for a selfie-view display.
-        return cv2.flip(img, 1), dict_landmarks_coordinates
+        return cv2.flip(img, 1), Landmarks(dict_landmarks_coordinates)
