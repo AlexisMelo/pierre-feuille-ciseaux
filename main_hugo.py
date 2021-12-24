@@ -88,8 +88,6 @@ def run_app_count_fingers():
                 (255, 255, 255, 255),  # font color
                 3,
             )  # font stroke
-        else:
-            print("None")
 
         # Display the resulting frame
         cv2.imshow("frame", frame)

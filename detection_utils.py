@@ -19,7 +19,7 @@ def get_user_game_posture(img):
     return FEUILLE
 
 
-def get_number_of_rounds_posture(landmarks):
+def get_number_of_rounds_posture(landmarks: Landmarks):
     """
     Return an integer : the number of stretched fingers
     corresponding to the numbers of rounds.
@@ -51,7 +51,7 @@ def get_starting_gesture(memory: Memory):
 def get_landmarks(img, draw=False):
     """Get the landmarks of the hand if present in img.
 
-    Extract the landmarks of 1 or 2 hands on img. Landmaks are discribed in
+    Extract the landmarks of 1 or 2 hands on img. Landmaks are described in
     https://google.github.io/mediapipe/solutions/hands.html
 
     Parameters
@@ -88,6 +88,7 @@ def get_landmarks(img, draw=False):
         img.flags.writeable = True
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         if results.multi_hand_landmarks:
+            # Draw the "skeleton" if needed
             if draw:
                 for hand_landmarks in results.multi_hand_landmarks:
                     mp_drawing.draw_landmarks(
@@ -107,6 +108,7 @@ def get_landmarks(img, draw=False):
 
             # Create a dict to map keypoints ids (0 to 20) to their normalized (x,y) coordinates in img
             # e.g. {0: (0.1251,0.1994), 1: (0.1513,0.9482), ..., 20: (0.8461,0.7138)}
+            # (0,0) being top left and (1,1) bottom right
             # See https://google.github.io/mediapipe/solutions/hands.html for more details
             dict_landmarks_coordinates = {
                 i: pos for i, pos in zip(range(21), list_coordinates)
