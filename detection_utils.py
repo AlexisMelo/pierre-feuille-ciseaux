@@ -19,20 +19,18 @@ def get_user_game_posture(img):
     return FEUILLE
 
 
-def get_number_of_rounds_posture(img):
+def get_number_of_rounds_posture(landmarks):
     """
     Return an integer : the number of stretched fingers
     corresponding to the numbers of rounds.
     """
 
-    _, landmarks = get_landmarks(img)
     if landmarks.is_not_none():
         thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
         index_up = landmarks.get_keypoint_y(8) < landmarks.get_keypoint_y(6)
         middle_up = landmarks.get_keypoint_y(12) < landmarks.get_keypoint_y(10)
         ring_up = landmarks.get_keypoint_y(16) < landmarks.get_keypoint_y(14)
         pinky_up = landmarks.get_keypoint_y(20) < landmarks.get_keypoint_y(18)
-        print([thumb_up, index_up, middle_up, ring_up, pinky_up])
         return thumb_up + index_up + middle_up + ring_up + pinky_up
     else:
         return None
@@ -63,7 +61,7 @@ def get_landmarks(img, draw=False):
 
     Return
     ------
-    cv2.flip(img, 1) -- the same image as img but with landmarks if draw==True
+    img -- the same image as img but with landmarks if draw==True
     Landmarks(dict_landmarks_coordinates) -- a Landmarks object intialized with
         a dict containing the landmarks (may be None)
 
@@ -114,5 +112,4 @@ def get_landmarks(img, draw=False):
                 i: pos for i, pos in zip(range(21), list_coordinates)
             }
 
-        # Flip the image horizontally for a selfie-view display.
-        return cv2.flip(img, 1), Landmarks(dict_landmarks_coordinates)
+        return img, Landmarks(dict_landmarks_coordinates)

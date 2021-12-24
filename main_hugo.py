@@ -55,11 +55,13 @@ def run_app_count_fingers():
     while True:
         # Capture the video frame by frame
         ret, frame = vid.read(0)
+        # Flip the image horizontally for a selfie-view display.
+        frame = cv2.flip(frame, 1)
 
         # Faire le traitement et les modifications d'images ici
-        # e.g. : frame = iu.write_score(frame)
+        # Landmarks' keypoints coordinates (0,0) is top left, (1,1) is bottom right
         frame, landmarks = du.get_landmarks(frame, draw)
-        rounds = du.get_number_of_rounds_posture(frame)
+        rounds = du.get_number_of_rounds_posture(landmarks)
         if rounds is not None:
             print(rounds)
         else:
