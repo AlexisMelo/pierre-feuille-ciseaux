@@ -52,12 +52,12 @@ class Memory:
                 return STATISTICS
 
     def _is_hand_on_left_side(self, landmarks):
-        if landmarks.is_not_none() and landmarks.get_keypoint_x(0) > 0.6:
+        if landmarks.is_not_none() and landmarks.get_keypoint_x(0) < 0.4:
             return True
         return False
 
     def _is_hand_on_right_side(self, landmarks):
-        if landmarks.is_not_none() and landmarks.get_keypoint_x(0) < 0.4:
+        if landmarks.is_not_none() and landmarks.get_keypoint_x(0) > 0.6:
             return True
         return False
 

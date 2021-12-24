@@ -18,9 +18,10 @@ def run_app_gesture():
     while True:
         # Capture the video frame by frame
         ret, frame = vid.read(0)
+        # Flip the image horizontally for a selfie-view display.
+        frame = cv2.flip(frame, 1)
 
         # Faire le traitement et les modifications d'images ici
-        # e.g. : frame = iu.write_score(frame)
         frame, landmarks = du.get_landmarks(frame, draw)
         im.add(landmarks)
         gesture = du.get_starting_gesture(im)
@@ -30,6 +31,18 @@ def run_app_gesture():
         elif gesture == STATISTICS:
             j += 1
             print("STATISTICS ", j)
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        position = (0, 70)
+        cv2.putText(
+            frame,  # numpy array on which text is written
+            str(gesture),  # text
+            position,  # position at which writing has to start
+            cv2.FONT_HERSHEY_SIMPLEX,  # font family
+            3,  # font size
+            (255, 255, 255, 255),  # font color
+            3,
+        )  # font stroke
 
         # Display the resulting frame
         cv2.imshow("frame", frame)
@@ -63,7 +76,18 @@ def run_app_count_fingers():
         frame, landmarks = du.get_landmarks(frame, draw)
         rounds = du.get_number_of_rounds_posture(landmarks)
         if rounds is not None:
-            print(rounds)
+            # print(rounds)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            position = (0, 70)
+            cv2.putText(
+                frame,  # numpy array on which text is written
+                str(rounds),  # text
+                position,  # position at which writing has to start
+                cv2.FONT_HERSHEY_SIMPLEX,  # font family
+                3,  # font size
+                (255, 255, 255, 255),  # font color
+                3,
+            )  # font stroke
         else:
             print("None")
 
