@@ -64,7 +64,26 @@ def get_starting_gesture(memory: Memory):
     Code obtained from https://google.github.io/mediapipe/solutions/hands
     """
     if memory:
-        return memory.recognize_starting_gesture()
+        oldest_landmarks = memory.get_oldest_data()
+        newest_landmarks = memory.get_newest_data()
+
+        oldest_hand_on_left_side = _is_hand_on_left_side(oldest_landmarks)
+        newest_hand_on_right_side = _is_hand_on_right_side(newest_landmarks)
+
+        oldest_hand_at_top = _is_hand_at_top(oldest_landmarks)
+        newest_hand_at_bottom = _is_hand_at_bottom(newest_landmarks)
+
+        swipe_left_to_right = oldest_hand_on_left_side and newest_hand_on_right_side
+        swipe_top_to_bottom = oldest_hand_at_top and newest_hand_at_bottom
+
+        # If either both or none of the 2 gestures are detected, return None
+        if swipe_top_to_bottom == swipe_left_to_right:
+            return None
+        else:
+            if swipe_left_to_right:
+                return LAUNCH_GAME
+            else:
+                return STATISTICS
     else:
         return None
 
@@ -141,3 +160,27 @@ def get_landmarks(img, draw=False):
             }
 
         return img, Landmarks(dict_landmarks_coordinates)
+
+
+def _is_hand_on_left_side(landmarks: Landmarks):
+    if landmarks.is_not_none() and landmarks.get_keypoint_x(0) < 0.4:
+        return True
+    return False
+
+
+def _is_hand_on_right_side(landmarks: Landmarks):
+    if landmarks.is_not_none() and landmarks.get_keypoint_x(0) > 0.6:
+        return True
+    return False
+
+
+def _is_hand_at_top(landmarks: Landmarks):
+    if landmarks.is_not_none() and landmarks.get_keypoint_y(0) < 0.4:
+        return True
+    return False
+
+
+def _is_hand_at_bottom(landmarks: Landmarks):
+    if landmarks.is_not_none() and landmarks.get_keypoint_y(0) > 0.6:
+        return True
+    return False
