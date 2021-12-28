@@ -21,12 +21,33 @@ def get_user_game_posture(img):
 
 def get_number_of_rounds_posture(landmarks: Landmarks):
     """
-    Return an integer : the number of stretched fingers
-    corresponding to the numbers of rounds.
+    Return the number of stretched fingers corresponding to the numbers of rounds.
+
+    The hand has to be correctly oriented (top of fingers towards the
+    top of the image from woth the landmarks has been extracted).
+    Works if it's either the hand palm facing the camera or the back of the hand.
+
+    If the landmarks object attribute containing the keypoints is None,
+    (i.e. no hand detected) the function returns None.
+
+    Parameters
+    ----------
+    landmarks -- The landmarks object of the hand for which we want to count the fingers
+
+    Return
+    ------
+    an int -- the number of stretched fingers
     """
 
     if landmarks.is_not_none():
-        thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
+
+        # Determine if it's the palm or the back that is facing the camera
+        # in order to choose the condition determining if the thumb is stretched or not
+        palm_facing_camera = landmarks.get_keypoint_x(5) < landmarks.get_keypoint_x(17)
+        if palm_facing_camera:
+            thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
+        else:
+            thumb_up = landmarks.get_keypoint_x(4) > landmarks.get_keypoint_x(2)
         index_up = landmarks.get_keypoint_y(8) < landmarks.get_keypoint_y(6)
         middle_up = landmarks.get_keypoint_y(12) < landmarks.get_keypoint_y(10)
         ring_up = landmarks.get_keypoint_y(16) < landmarks.get_keypoint_y(14)
@@ -48,6 +69,11 @@ def get_starting_gesture(memory: Memory):
         return None
 
 
+############################
+## OTHER NEEDED FUNCTIONS ##
+############################
+
+
 def get_landmarks(img, draw=False):
     """Get the landmarks of the hand if present in img.
 
@@ -67,7 +93,7 @@ def get_landmarks(img, draw=False):
 
     Note
     ----
-    Code obtained from https://google.github.io/mediapipe/solutions/hands
+    Code inspired from https://google.github.io/mediapipe/solutions/hands
     """
 
     mp_drawing = mp.solutions.drawing_utils
