@@ -1,4 +1,4 @@
-from constants import *
+from etc.constants import *
 
 
 class Memory:

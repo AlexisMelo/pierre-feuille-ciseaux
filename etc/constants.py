@@ -12,8 +12,10 @@ POSSIBLE_GESTURES = [LAUNCH_GAME, STATISTICS]
 MEMORY_SIZE = 60
 
 ### WINNER ###
-PLAYER_WIN = "player_win"
-COMPUTER_WIN = "computer_win"
+PLAYER_WIN = "Player"
+COMPUTER_WIN = "Computer"
 
 ### GAME ###
 NB_MAX_ROUND = 5
+
+FRAME_NAME = "Pierre feuille ciseaux"

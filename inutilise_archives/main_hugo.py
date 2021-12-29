@@ -1,10 +1,9 @@
 import cv2
-import numpy as np
-from Memory import Memory
-import image_utils as iu
-import detection_utils as du
-from constants import *
-import mediapipe as mp
+from src.Memory import Memory
+from etc.constants import *
+from src.ApplicationHandler import ApplicationHandler
+from src.GameHandler import GameHandler
+from src.Landmarks import get_landmarks
 
 
 def run_app_gesture():
@@ -14,6 +13,7 @@ def run_app_gesture():
     draw = False
     i = 0
     j = 0
+    app_handler = ApplicationHandler()
 
     while True:
         # Capture the video frame by frame
@@ -22,9 +22,9 @@ def run_app_gesture():
         frame = cv2.flip(frame, 1)
 
         # Faire le traitement et les modifications d'images ici
-        frame, landmarks = du.get_landmarks(frame, draw)
+        frame, landmarks = get_landmarks(frame, draw)
         im.add(landmarks)
-        gesture = du.get_starting_gesture(im)
+        gesture = app_handler.get_starting_gesture(im)
         if gesture == LAUNCH_GAME:
             i += 1
             print("LAUNCH ", i)
@@ -64,6 +64,7 @@ def run_app_count_fingers():
     # define a video capture object (0 = default webcam)
     vid = cv2.VideoCapture(0)
     draw = False
+    game_handler = GameHandler(vid)
 
     while True:
         # Capture the video frame by frame
@@ -73,8 +74,8 @@ def run_app_count_fingers():
 
         # Faire le traitement et les modifications d'images ici
         # Landmarks' keypoints coordinates (0,0) is top left, (1,1) is bottom right
-        frame, landmarks = du.get_landmarks(frame, draw)
-        rounds = du.get_number_of_rounds_posture(landmarks)
+        frame, landmarks = get_landmarks(frame, draw)
+        rounds = game_handler.get_number_of_rounds_posture(landmarks)
         if rounds is not None:
             # print(rounds)
             font = cv2.FONT_HERSHEY_SIMPLEX

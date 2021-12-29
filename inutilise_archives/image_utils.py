@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from constants import *
+from etc.constants import *
 
 
 def display_computer_game_posture(img, posture_computer):

@@ -18,7 +18,7 @@ Mettre à jour les libraries nécessaires : pip freeze > requirements.txt
 
 Activer l'environnement virtuel : `source venv/bin/activate`
 
-Taper : `python3 pfc.py`
+Taper : `python3 run.py`
 
 Appuyer sur la touche `d` pour activer ou désactiver l'affichage du squelette de la main.
 

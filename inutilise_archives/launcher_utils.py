@@ -1,9 +1,6 @@
 import cv2
-import time
-import numpy as np
 import image_utils as iu
-import detection_utils as du
-from constants import *
+from etc.constants import *
 from random import randint
 
 
@@ -33,6 +30,7 @@ def run_app():
             #frame = iu.display_final_winner(frame, winner, " 5-3")
         elif start_gesture == STATISTICS:
             #frame = iu.display_scores_previous_games(frame,scores) #score doit etre une liste ex : ["5-3","4-2","3-1","3-0"]
+            pass
 
         # Display the resulting frame
         cv2.imshow("frame", frame)
@@ -70,7 +68,3 @@ def get_computer_game_posture():
     if random == 0: return CISEAUX
     if random == 1: return PIERRE
     if random == 2: return FEUILLE
-
-
-if __name__ == "__main__":
-    run_app()
