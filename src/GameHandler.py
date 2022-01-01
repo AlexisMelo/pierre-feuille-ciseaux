@@ -97,34 +97,113 @@ class GameHandler:
         pinky_up = landmarks.get_keypoint_y(20) < landmarks.get_keypoint_y(18)
         return thumb_up + index_up + middle_up + ring_up + pinky_up
 
-    def get_user_game_posture(self, img):
+    def get_user_game_posture(self, landmarks: Landmarks):
         """
         Return the symbol made by the hand on the image
         which is an element of POSSIBLE_GAME_POSTURES.
         """
 
-        display_blocking_message_center(self.video, "Je capture un geste looooooool", 25)
+        if not landmarks.is_not_none():
+            return None
 
-        return self.get_computer_game_posture()
+        # Determine if it's the palm or the back that is facing the camera
+        # in order to choose the condition determining if the thumb is stretched or not
+        palm_facing_camera = landmarks.get_keypoint_x(5) < landmarks.get_keypoint_x(17)
+
+        if palm_facing_camera:
+            thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
+        else:
+            thumb_up = landmarks.get_keypoint_x(4) > landmarks.get_keypoint_x(2)
+
+        index_up = landmarks.get_keypoint_y(8) < landmarks.get_keypoint_y(6)
+        middle_up = landmarks.get_keypoint_y(12) < landmarks.get_keypoint_y(10)
+        ring_up = landmarks.get_keypoint_y(16) < landmarks.get_keypoint_y(14)
+        pinky_up = landmarks.get_keypoint_y(20) < landmarks.get_keypoint_y(18)
+            
+        feuille1 = abs(landmarks.get_keypoint_y(6) - landmarks.get_keypoint_y(8))<0.05
+        feuille2 = abs(landmarks.get_keypoint_y(10) - landmarks.get_keypoint_y(12))<0.05
+        feuille3 = abs(landmarks.get_keypoint_y(14) - landmarks.get_keypoint_y(16)) <0.05
+        feuille4 = abs(landmarks.get_keypoint_y(18) - landmarks.get_keypoint_y(20)) <0.05
+        feuille5 = abs(landmarks.get_keypoint_y(4) - landmarks.get_keypoint_y(3)) <0.05
+        feuille6 = abs(landmarks.get_keypoint_x(6) - landmarks.get_keypoint_x(20)) >0.07
+        feuille7 = abs(landmarks.get_keypoint_x(4) - landmarks.get_keypoint_x(10))>0.04
+        
+        
+        cis1 = abs(landmarks.get_keypoint_x(6) - landmarks.get_keypoint_x(8))< 0.07
+        cis2 = abs(landmarks.get_keypoint_x(10) - landmarks.get_keypoint_x(12))< 0.07
+        cis3 = abs(landmarks.get_keypoint_x(14) - landmarks.get_keypoint_x(16)) < 0.07
+        cis4 = abs(landmarks.get_keypoint_x(18) - landmarks.get_keypoint_x(20)) < 0.07
+        cis5 = abs(landmarks.get_keypoint_x(14) - landmarks.get_keypoint_x(13)) > 0.03
+        cis6 = abs(landmarks.get_keypoint_x(18) - landmarks.get_keypoint_x(17))> 0.03
+        cis7 = abs(landmarks.get_keypoint_x(8) - landmarks.get_keypoint_x(20))>0.01
+        cis8 = abs(landmarks.get_keypoint_y(4) - landmarks.get_keypoint_y(10))>0.05
+        
+        pierre1 = abs(landmarks.get_keypoint_x(5) > landmarks.get_keypoint_x(6))
+        pierre2 = abs(landmarks.get_keypoint_x(9) > landmarks.get_keypoint_x(10))
+        pierre3 = abs(landmarks.get_keypoint_x(13) > landmarks.get_keypoint_x(14))
+        pierre4 = abs(landmarks.get_keypoint_x(17) > landmarks.get_keypoint_x(18))
+        pierre5 = abs(landmarks.get_keypoint_y(4) - landmarks.get_keypoint_y(10))<0.02 or abs(landmarks.get_keypoint_x(4) - landmarks.get_keypoint_x(6))<0.02
+
+        if (feuille1 and feuille2 and feuille3 and feuille4 and feuille5 and feuille6 and feuille7) :
+            return FEUILLE
+        if (index_up and middle_up) or (cis1 and cis2 and cis3 and cis4 and cis5  and cis6 and cis7 and cis8) :
+            return CISEAUX
+        if (pierre1 and pierre2 and pierre3 and pierre4 and pierre5):
+            return PIERRE
+
 
     def start_game(self, number_of_rounds):
         key = False
         rounds_played = 0
         player_rounds_won = 0
         computer_won_rounds = 0
+        number_of_frames_to_validate = 20
         while key != ord("q") and rounds_played < number_of_rounds:
+            
+            last_gesture = None  # mémoire pour dernière gesture reconnue
+            posture_player = None
+            last_gesture_sum = 0  # Nombre de fois qu'on a eu la même gesture d'affilé
             display_blocking_message_center(self.video, f"Round {rounds_played + 1} / {number_of_rounds}", 25,
                                             font_color=(255, 0, 0))
+            print("ROUND ", rounds_played +1)
+            
+            while (last_gesture_sum < number_of_frames_to_validate): 
 
-            success, frame = self.video.read(0)
+               success, frame = self.video.read(0)
 
-            frame = cv2.flip(frame, 1)  # Flip the image horizontally for a selfie-view display
+               if not success:
+                    print("Erreur lecture vidéo pendant l'acquisition de la posture")
+                    break
 
-            cv2.imshow(FRAME_NAME, frame)
+               frame = cv2.flip(frame, 1)
+               
+               # Faire le traitement et les modifications d'images ici
+               # Landmarks' keypoints coordinates (0,0) is top left, (1,1) is bottom right
+               frame, landmarks = get_landmarks(frame, self.draw)
 
-            posture_player = self.get_user_game_posture(frame)
+               posture_player = self.get_user_game_posture(landmarks)
+              
+               if (posture_player == last_gesture and posture_player != None):
+                    last_gesture_sum += 1
+               else:
+                    last_gesture_sum = 0
 
-            display_blocking_message_center(self.video, f"Acquisition humain : {posture_player}", 15)
+               if (posture_player != None):
+                   display_non_blocking_message_bottom_left(frame, f"{last_gesture_sum} / {number_of_frames_to_validate}")
+                    
+               last_gesture = posture_player
+                
+               display_non_blocking_message_top_left(frame, f"Posture detectee : {posture_player}")
+               
+               cv2.imshow(FRAME_NAME, frame)
+               
+               key = cv2.pollKey() & 0xFF
+               if key == ord("d"):
+                self.draw = not self.draw
+                
+            if posture_player :
+            
+                display_blocking_message_center(self.video, f"Acquisition humain : {posture_player}", 15)
 
             posture_computer = self.get_computer_game_posture()
 
