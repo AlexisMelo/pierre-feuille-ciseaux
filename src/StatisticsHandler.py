@@ -13,12 +13,12 @@ class StatisticsHandler:
         print("affichage des stats")
         stats = self.read_stats()
         print(stats)
-        if "fion" in stats:
-            stats["fion"]["cul"] = stats["fion"]["cul"] + 1
+        if "bidule" in stats:
+            stats["bidule"]["machin"] = stats["bidule"]["machin"] + 1
         else:
-            stats["fion"] = {
-                "cul": 1,
-                "szdezfe": "eeeee"
+            stats["bidule"] = {
+                "machin": 1,
+                "aaaaaaaa": "eeeee"
             }
         self.write_stats(stats)
 
