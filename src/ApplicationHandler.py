@@ -4,6 +4,7 @@ from etc.constants import LAUNCH_GAME, STATISTICS, FRAME_NAME
 from src.GameHandler import GameHandler
 from src.Landmarks import Landmarks, get_landmarks
 from src.Memory import Memory
+from src.StatisticsHandler import StatisticsHandler
 from src.utils import display_blocking_message_center, display_non_blocking_message_top_left
 
 
@@ -38,11 +39,14 @@ class ApplicationHandler:
         self.draw = False
 
     def run_application(self):
+        print("Avant toute chose... tu pourrais m'indiquer ton pseudo bg ?")
+        pseudo = input()
+        print(f"Ok {pseudo}, c'est parti !")
+
         video = cv2.VideoCapture(0)
         video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         key = False
-        frame = None
         last_gesture = None
 
         while key != ord("q"):
@@ -63,22 +67,21 @@ class ApplicationHandler:
             cv2.imshow(FRAME_NAME, frame)
 
             if gesture and last_gesture != gesture:
-                if gesture:
-                    if gesture == LAUNCH_GAME:
-                        display_blocking_message_center(video, "Creation d'une nouvelle partie", 25,
-                                                        font_color=(0, 0, 255))
-                        game_handler = GameHandler(video)
-                        game_handler.initialize_game()
-                    elif gesture == STATISTICS:
-                        print("Affichage des statistiques, mais pas implémenté encore")
+                if gesture == LAUNCH_GAME:
+                    display_blocking_message_center(video, "Creation d'une nouvelle partie", 25,
+                                                    font_color=(0, 0, 255))
+                    game_handler = GameHandler(video)
+                    game_handler.initialize_game()
+                elif gesture == STATISTICS:
+                    display_blocking_message_center(video, "Affichage des statistiques", 25, font_color=(0, 0, 255))
+                    statistics_handler = StatisticsHandler(video)
+                    statistics_handler.show_stats(pseudo)
 
             last_gesture = gesture
 
             key = cv2.pollKey() & 0xFF
             if key == ord("d"):
                 self.draw = not self.draw
-
-
 
         print("Arrêt de la capture")
         video.release()
