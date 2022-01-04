@@ -64,7 +64,7 @@ def run_app_count_fingers():
     # define a video capture object (0 = default webcam)
     vid = cv2.VideoCapture(0)
     draw = False
-    game_handler = GameHandler(vid)
+    game_handler = GameHandler(vid, StatisticsHandler())
 
     while True:
         # Capture the video frame by frame
@@ -77,7 +77,7 @@ def run_app_count_fingers():
         frame, landmarks = get_landmarks(frame, draw)
         rounds = game_handler.get_number_of_rounds_posture(landmarks)
         if rounds is not None:
-            # print(rounds)
+            #print(rounds)
             font = cv2.FONT_HERSHEY_SIMPLEX
             position = (0, 70)
             cv2.putText(

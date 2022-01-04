@@ -7,8 +7,7 @@ from src.GameInterruptedException import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.StatisticsHandler import StatisticsHandler
 from src.utils import display_blocking_message_center, display_non_blocking_message_top_left, \
-    display_non_blocking_message_bottom_left
-
+    display_non_blocking_message_bottom_left, are_aligned
 
 class GameHandler:
 
@@ -87,20 +86,12 @@ class GameHandler:
         if not landmarks.is_not_none():
             return None
 
-        # Determine if it's the palm or the back that is facing the camera
-        # in order to choose the condition determining if the thumb is stretched or not
-        palm_facing_camera = landmarks.get_keypoint_x(5) < landmarks.get_keypoint_x(17)
-
-        if palm_facing_camera:
-            thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
-        else:
-            thumb_up = landmarks.get_keypoint_x(4) > landmarks.get_keypoint_x(2)
-
-        index_up = landmarks.get_keypoint_y(8) < landmarks.get_keypoint_y(6)
-        middle_up = landmarks.get_keypoint_y(12) < landmarks.get_keypoint_y(10)
-        ring_up = landmarks.get_keypoint_y(16) < landmarks.get_keypoint_y(14)
-        pinky_up = landmarks.get_keypoint_y(20) < landmarks.get_keypoint_y(18)
-        return thumb_up + index_up + middle_up + ring_up + pinky_up
+        thumb_up = are_aligned(landmarks.get_keypoint_xy(1), landmarks.get_keypoint_xy(2), landmarks.get_keypoint_xy(4))
+        index_up = landmarks.get_distance_between(0,8) > landmarks.get_distance_between(0,6)
+        middle_up = landmarks.get_distance_between(0,12) > landmarks.get_distance_between(0,10)
+        ring_up = landmarks.get_distance_between(0,16) > landmarks.get_distance_between(0,14)
+        pinky_up = landmarks.get_distance_between(0,20) > landmarks.get_distance_between(0,18)
+        return int(thumb_up) + int(index_up) + int(middle_up) + int(ring_up) + int(pinky_up)
 
     def get_user_game_posture(self, landmarks: Landmarks):
         """
@@ -125,8 +116,8 @@ class GameHandler:
         # and if ring and pinky fingers aren't stretched
         distance_top_fingers = landmarks.get_distance_between(8,12)
         distance_bottom_fingers = landmarks.get_distance_between(5,9)
-        ring_down = landmarks.get_keypoint_y(16) > landmarks.get_keypoint_y(14)
-        pinky_down = landmarks.get_keypoint_y(20) > landmarks.get_keypoint_y(18)
+        ring_down = landmarks.get_distance_between(0,16) < landmarks.get_distance_between(0,14)
+        pinky_down = landmarks.get_distance_between(0,20) < landmarks.get_distance_between(0,18)
         is_ciseaux = ring_down and pinky_down and distance_top_fingers > CISEAUX_THRESHOLD*distance_bottom_fingers
         if (is_ciseaux):
             return CISEAUX

@@ -1,4 +1,7 @@
+################
 ### POSTURES ###
+################
+
 PIERRE = "pierre"
 FEUILLE = "feuille"
 CISEAUX = "ciseaux"
@@ -12,20 +15,35 @@ CISEAUX_THRESHOLD = 2
 # Float between 0 included and +inf
 # The closer it gets to 0, the more stuck the fingers has to be in order to be recognized has a FEUILLE
 # The bigger it gets, the less stuck the fingers has to be in order to be recognized has a FEUILLE
-# TODO
 FEUILLE_THRESHOLD = 0.05
 
+# FLoat between 0 and +inf
+# The closer it gets to 0, the more aligned the thumb as to be to be considered ad stretched
+# The bigger it gets, the less aligned tje thumb as to be to be considered as stretched
+ALIGNMENT_THRESHOLD = 0.007
+
+
+################
 ### GESTURES ###
+################
+
 LAUNCH_GAME = "launch_game"
 STATISTICS = "statistics"
 POSSIBLE_GESTURES = [LAUNCH_GAME, STATISTICS]
 # Keep the 10 last images data in memory to detect the gestures
 MEMORY_SIZE = 10
 
-### WINNER ###
+
+################
+###  WINNER  ###
+################
+
 PLAYER_WIN = "Player"
 COMPUTER_WIN = "Computer"
 
-### GAME ###
+
+################
+###   GAME   ###
+################
 NB_MAX_ROUND = 5
 FRAME_NAME = "Pierre feuille ciseaux"

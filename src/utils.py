@@ -1,6 +1,7 @@
 import cv2
+import numpy as np
 
-from etc.constants import FRAME_NAME
+from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD 
 from src.GameInterruptedException import GameInterruptedException
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
@@ -77,3 +78,20 @@ def display_non_blocking_message_bottom_left(frame, message, font_size=2, font_c
         font_color,  # font color
         FONT_STROKE,  # font stroke
     )
+
+
+def are_aligned(point1, point2, point3) :
+    """Determine is the 3 given points are aligned
+    
+    Parameters
+    ----------
+    point1, point2, point3 : float tuples under (x,y) format
+
+    Return
+    ------
+    a boolean -- True if the points are aligned at tolerance ALIGNMENT_THRESHOLD
+    """
+    x1, y1 = point1
+    x2, y2 = point2
+    x3, y3 = point3
+    return np.abs(((y1-y2)*(x1-x3)) - ((y1-y3)*(x1-x2))) < ALIGNMENT_THRESHOLD
