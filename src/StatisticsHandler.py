@@ -1,6 +1,11 @@
 import json
-from pprint import pprint
 import os
+
+import cv2
+
+from etc.constants import FRAME_NAME, FONT_SMALL
+from src.CustomExceptions import GameInterruptedException
+from src.utils import display_non_blocking_message_top_center, display_non_blocking_message
 
 default_dict = {
     "games_played": 0,
@@ -29,9 +34,32 @@ class StatisticsHandler:
 
         self.data = self.read_stats()
 
-    def show_stats(self, pseudo):
+    def show_stats(self, video, pseudo):
         print("affichage des stats")
-        pprint(self.data)
+        number_of_frames_shown = 0
+        number_of_frames = 20
+
+        while number_of_frames_shown < number_of_frames:
+
+            success, frame = video.read(0)
+
+            if not success:
+                raise RuntimeError("Erreur lecture vidéo pendant affichage des stats")
+
+            frame = cv2.flip(frame, 1)
+
+            display_non_blocking_message_top_center(frame, "Statistics")
+            display_non_blocking_message(frame, pseudo[:20], position=(25, 200), font=FONT_SMALL)
+            display_non_blocking_message(frame, "Global", position=(600, 200), font=FONT_SMALL)
+            display_non_blocking_message(frame, "computer", position=(1100, 200), font=FONT_SMALL)
+
+            cv2.imshow(FRAME_NAME, frame)
+
+            number_of_frames_shown = number_of_frames_shown + 1
+
+            key = cv2.pollKey() & 0xFF
+            if key == ord("q"):
+                raise GameInterruptedException
 
     # https://stackabuse.com/reading-and-writing-json-to-a-file-in-python/
     def read_stats(self):

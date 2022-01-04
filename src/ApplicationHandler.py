@@ -42,7 +42,7 @@ class ApplicationHandler:
 
     def run_application(self):
         print("Avant toute chose... tu pourrais m'indiquer ton pseudo bg ?")
-        pseudo = input()
+        pseudo = "PSEUDO COOOOOL" #input()
         print(f"Ok {pseudo}, c'est parti !")
 
         video = cv2.VideoCapture(0)
@@ -75,7 +75,7 @@ class ApplicationHandler:
                         game_handler.initialize_game()
                     elif gesture == STATISTICS:
                         display_blocking_message_center(video, "Affichage des statistiques", 25, font_color=(0, 0, 255))
-                        self.statistics_handler.show_stats(pseudo)
+                        self.statistics_handler.show_stats(video, pseudo)
 
                 last_gesture = gesture
 

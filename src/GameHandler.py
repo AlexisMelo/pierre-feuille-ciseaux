@@ -3,7 +3,7 @@ import random
 import cv2
 
 from etc.constants import FEUILLE, FEUILLE_THRESHOLD, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN, \
-    CISEAUX_THRESHOLD
+    CISEAUX_THRESHOLD, FONT_SMALL
 from src.CustomExceptions import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.StatisticsHandler import StatisticsHandler
@@ -201,15 +201,13 @@ class GameHandler:
                 display_blocking_message_center(self.video,
                                                 f"Bravo ! Tu remportes le round ({posture_player} > {posture_computer})",
                                                 25,
-                                                font_size=1,
-                                                font_stroke=2)
+                                                font=FONT_SMALL)
                 player_rounds_won = player_rounds_won + 1
             elif winner == COMPUTER_WIN:
                 display_blocking_message_center(self.video,
                                                 f"Dommage, l'ordinateur remporte le round ({posture_computer} > {posture_player})",
                                                 25,
-                                                font_size=1,
-                                                font_stroke=2)
+                                                font=FONT_SMALL)
                 computer_rounds_won = computer_rounds_won + 1
             else:
                 display_blocking_message_center(self.video, f"Match nul ! Aucun gagnant ce round", 25)

@@ -1,6 +1,7 @@
 ################
 ### POSTURES ###
 ################
+import cv2
 
 PIERRE = "pierre"
 FEUILLE = "feuille"
@@ -22,7 +23,6 @@ FEUILLE_THRESHOLD = 0.05
 # The bigger it gets, the less aligned tje thumb as to be to be considered as stretched
 ALIGNMENT_THRESHOLD = 0.003
 
-
 ################
 ### GESTURES ###
 ################
@@ -33,7 +33,6 @@ POSSIBLE_GESTURES = [LAUNCH_GAME, STATISTICS]
 # Keep the 10 last images data in memory to detect the gestures
 MEMORY_SIZE = 10
 
-
 ################
 ###  WINNER  ###
 ################
@@ -41,9 +40,21 @@ MEMORY_SIZE = 10
 PLAYER_WIN = "Player"
 COMPUTER_WIN = "Computer"
 
-
 ################
 ###   GAME   ###
 ################
 NB_MAX_ROUND = 5
 FRAME_NAME = "Pierre feuille ciseaux"
+
+################
+###   MESSAGES   ###
+################
+FONT = cv2.FONT_HERSHEY_SIMPLEX
+
+FONT_STROKE_NORMAL = 5
+FONT_SIZE_NORMAL = 2
+FONT_NORMAL = (FONT_SIZE_NORMAL, FONT_STROKE_NORMAL)
+
+FONT_SIZE_SMALL = 1
+FONT_STROKE_SMALL = 2
+FONT_SMALL = (FONT_SIZE_SMALL, FONT_STROKE_SMALL)

@@ -1,16 +1,25 @@
 import cv2
 import numpy as np
 
-from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD 
+from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD, FONT, FONT_NORMAL
 from src.CustomExceptions import GameInterruptedException
 
-FONT = cv2.FONT_HERSHEY_SIMPLEX
-FONT_STROKE = 5
+
+def display_non_blocking_message(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0),
+                                 position=(0, 0)):
+    cv2.putText(
+        frame,  # numpy array on which text is written
+        message,  # text
+        position,  # position at which writing has to start
+        FONT,  # font family
+        font[0],  # font size
+        font_color,  # font color
+        font[1],  # font stroke
+    )
 
 
-def display_blocking_message_center(video, message, number_of_frames, font_size=2,
-                                    font_color=(255, 255, 255, 255),
-                                    font_stroke=FONT_STROKE):
+def display_blocking_message_center(video, message, number_of_frames, font=FONT_NORMAL,
+                                    font_color=(255, 255, 255, 255)):
     number_of_frames_shown = 0
 
     while number_of_frames_shown < number_of_frames:
@@ -23,19 +32,13 @@ def display_blocking_message_center(video, message, number_of_frames, font_size=
 
         frame = cv2.flip(frame, 1)
 
-        textsize = cv2.getTextSize(message, FONT, font_size, font_stroke)[0]
-        cv2.putText(
-            frame,  # numpy array on which text is written
-            message,  # text
-            (
-                (frame.shape[1] - textsize[0]) // 2,
-                (frame.shape[0] - textsize[1]) // 2,
-            ),  # position at which writing has to start
-            FONT,  # font family
-            font_size,  # font size
-            font_color,  # font color
-            font_stroke,  # font stroke
-        )
+        textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
+        display_non_blocking_message(frame,
+                                     message,
+                                     position=(
+                                         (frame.shape[1] - textsize[0]) // 2, (frame.shape[0] - textsize[1]) // 2),
+                                     font=font,
+                                     font_color=font_color)
 
         cv2.imshow(FRAME_NAME, frame)
 
@@ -46,41 +49,34 @@ def display_blocking_message_center(video, message, number_of_frames, font_size=
             raise GameInterruptedException
 
 
-def display_non_blocking_message_top_left(frame, message, font_size=2, font_color=(0, 0, 0)):
-    textsize = cv2.getTextSize(message, FONT, font_size, FONT_STROKE)[0]
-
-    cv2.putText(
-        frame,  # numpy array on which text is written
-        message,  # text
-        (
-            (frame.shape[1] - textsize[0]) // 2,
-            75
-        ),  # position at which writing has to start
-        FONT,  # font family
-        font_size,  # font size
-        font_color,  # font color
-        FONT_STROKE,  # font stroke
-    )
+def display_non_blocking_message_top_left(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0)):
+    textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
+    display_non_blocking_message(frame,
+                                 message,
+                                 position=((frame.shape[1] - textsize[0]) // 2, 75),
+                                 font=font,
+                                 font_color=font_color)
 
 
-def display_non_blocking_message_bottom_left(frame, message, font_size=2, font_color=(0, 0, 0)):
-    textsize = cv2.getTextSize(message, FONT, font_size, FONT_STROKE)[0]
-
-    cv2.putText(
-        frame,  # numpy array on which text is written
-        message,  # text
-        (
-            25,
-            (frame.shape[0] - textsize[1]) - 25
-        ),  # position at which writing has to start
-        FONT,  # font family
-        font_size,  # font size
-        font_color,  # font color
-        FONT_STROKE,  # font stroke
-    )
+def display_non_blocking_message_bottom_left(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0)):
+    textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
+    display_non_blocking_message(frame,
+                                 message,
+                                 position=(25, (frame.shape[0] - textsize[1]) - 25),
+                                 font=font,
+                                 font_color=font_color)
 
 
-def are_aligned(point1, point2, point3) :
+def display_non_blocking_message_top_center(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0)):
+    textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
+    display_non_blocking_message(frame,
+                                 message,
+                                 position=((frame.shape[1] - textsize[0]) // 2, 75),
+                                 font=font,
+                                 font_color=font_color)
+
+
+def are_aligned(point1, point2, point3):
     """Determine is the 3 given points are aligned
     
     Parameters
@@ -94,5 +90,5 @@ def are_aligned(point1, point2, point3) :
     x1, y1 = point1
     x2, y2 = point2
     x3, y3 = point3
-    #print(np.abs(((y1-y2)*(x1-x3)) - ((y1-y3)*(x1-x2))))
-    return np.abs(((y1-y2)*(x1-x3)) - ((y1-y3)*(x1-x2))) < ALIGNMENT_THRESHOLD
+    # print(np.abs(((y1-y2)*(x1-x3)) - ((y1-y3)*(x1-x2))))
+    return np.abs(((y1 - y2) * (x1 - x3)) - ((y1 - y3) * (x1 - x2))) < ALIGNMENT_THRESHOLD
