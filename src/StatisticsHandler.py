@@ -17,11 +17,12 @@ class StatisticsHandler:
         self.stats_file_name = "stats.json"
         self.stats_path = f"{self.stats_folder}/{self.stats_file_name}"
 
-        if not os.path.exists(self.stats_folder):
-            os.makedirs(self.stats_folder)
+        if not os.path.exists(self.stats_path):
+            if not os.path.exists(self.stats_folder):
+                os.makedirs(self.stats_folder)
 
-        with open(self.stats_path, "w") as file:
-            json.dump(default_dict, file, indent=4, sort_keys=True, ensure_ascii=False)
+            with open(self.stats_path, "w") as file:
+                json.dump(default_dict, file, indent=4, sort_keys=True, ensure_ascii=False)
 
     def show_stats(self, pseudo):
         print("affichage des stats")
