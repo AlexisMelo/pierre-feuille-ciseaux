@@ -1,6 +1,6 @@
 {
-    "games_abandoned": 1,
-    "games_played": 1,
+    "games_abandoned": 5,
+    "games_played": 3,
     "players": {
         "computer": {
             "paper": 0,

@@ -2,7 +2,7 @@ import random
 
 import cv2
 
-from etc.constants import FEUILLE, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN
+from etc.constants import FEUILLE, FEUILLE_THRESHOLD, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN, CISEAUX_THRESHOLD
 from src.GameInterruptedException import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.StatisticsHandler import StatisticsHandler
@@ -106,55 +106,46 @@ class GameHandler:
         """
         Return the symbol made by the hand on the image
         which is an element of POSSIBLE_GAME_POSTURES.
+
+        Parameters
+        ----------
+        landmarks -- The landmarks object of the hand for which we want to recognize the posture
+
+        Return
+        ------
+        a String -- The recognized game posture (CISEAUX, PIERRE or FEUILLE) or None if 
+            no game posture is recognized
         """
 
         if not landmarks.is_not_none():
             return None
-
-        # Determine if it's the palm or the back that is facing the camera
-        # in order to choose the condition determining if the thumb is stretched or not
-        palm_facing_camera = landmarks.get_keypoint_x(5) < landmarks.get_keypoint_x(17)
-
-        if palm_facing_camera:
-            thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
-        else:
-            thumb_up = landmarks.get_keypoint_x(4) > landmarks.get_keypoint_x(2)
-
-        index_up = landmarks.get_keypoint_y(8) < landmarks.get_keypoint_y(6)
-        middle_up = landmarks.get_keypoint_y(12) < landmarks.get_keypoint_y(10)
-        ring_up = landmarks.get_keypoint_y(16) < landmarks.get_keypoint_y(14)
-        pinky_up = landmarks.get_keypoint_y(20) < landmarks.get_keypoint_y(18)
-
-        feuille1 = abs(landmarks.get_keypoint_y(6) - landmarks.get_keypoint_y(8)) < 0.05
-        feuille2 = abs(landmarks.get_keypoint_y(10) - landmarks.get_keypoint_y(12)) < 0.05
-        feuille3 = abs(landmarks.get_keypoint_y(14) - landmarks.get_keypoint_y(16)) < 0.05
-        feuille4 = abs(landmarks.get_keypoint_y(18) - landmarks.get_keypoint_y(20)) < 0.05
-        feuille5 = abs(landmarks.get_keypoint_y(4) - landmarks.get_keypoint_y(3)) < 0.05
-        feuille6 = abs(landmarks.get_keypoint_x(6) - landmarks.get_keypoint_x(20)) > 0.07
-        feuille7 = abs(landmarks.get_keypoint_x(4) - landmarks.get_keypoint_x(10)) > 0.04
-
-        cis1 = abs(landmarks.get_keypoint_x(6) - landmarks.get_keypoint_x(8)) < 0.07
-        cis2 = abs(landmarks.get_keypoint_x(10) - landmarks.get_keypoint_x(12)) < 0.07
-        cis3 = abs(landmarks.get_keypoint_x(14) - landmarks.get_keypoint_x(16)) < 0.07
-        cis4 = abs(landmarks.get_keypoint_x(18) - landmarks.get_keypoint_x(20)) < 0.07
-        cis5 = abs(landmarks.get_keypoint_x(14) - landmarks.get_keypoint_x(13)) > 0.03
-        cis6 = abs(landmarks.get_keypoint_x(18) - landmarks.get_keypoint_x(17)) > 0.03
-        cis7 = abs(landmarks.get_keypoint_x(8) - landmarks.get_keypoint_x(20)) > 0.01
-        cis8 = abs(landmarks.get_keypoint_y(4) - landmarks.get_keypoint_y(10)) > 0.05
-
-        pierre1 = abs(landmarks.get_keypoint_x(5) > landmarks.get_keypoint_x(6))
-        pierre2 = abs(landmarks.get_keypoint_x(9) > landmarks.get_keypoint_x(10))
-        pierre3 = abs(landmarks.get_keypoint_x(13) > landmarks.get_keypoint_x(14))
-        pierre4 = abs(landmarks.get_keypoint_x(17) > landmarks.get_keypoint_x(18))
-        pierre5 = abs(landmarks.get_keypoint_y(4) - landmarks.get_keypoint_y(10)) < 0.02 or abs(
-            landmarks.get_keypoint_x(4) - landmarks.get_keypoint_x(6)) < 0.02
-
-        if (feuille1 and feuille2 and feuille3 and feuille4 and feuille5 and feuille6 and feuille7):
-            return FEUILLE
-        if (index_up and middle_up) or (cis1 and cis2 and cis3 and cis4 and cis5 and cis6 and cis7 and cis8):
+        
+        # The posture is a CISEAUX if the space between keypoint 8 and 12 
+        # is wider than the space between 5 and 9
+        # and if ring and pinky fingers aren't stretched
+        distance_top_fingers = landmarks.get_distance_between(8,12)
+        distance_bottom_fingers = landmarks.get_distance_between(5,9)
+        ring_down = landmarks.get_keypoint_y(16) > landmarks.get_keypoint_y(14)
+        pinky_down = landmarks.get_keypoint_y(20) > landmarks.get_keypoint_y(18)
+        is_ciseaux = ring_down and pinky_down and distance_top_fingers > CISEAUX_THRESHOLD*distance_bottom_fingers
+        if (is_ciseaux):
             return CISEAUX
-        if (pierre1 and pierre2 and pierre3 and pierre4 and pierre5):
+        
+        # The posture is a PIERRE if is all fingers aren't stretched
+        # (i.e. if this were the posture to determine the nb of rounds, the result would be 0)
+        is_pierre = self.get_number_of_rounds_posture(landmarks) == 0
+        if (is_pierre):
             return PIERRE
+
+        # The posture is a FEUILLE if the distance between keypoint 6 and 19 is close to 5 and 17
+        distance_stuck_fingers1 = landmarks.get_distance_between(6,19)
+        distance_stuck_fingers2 = landmarks.get_distance_between(5,17)
+        is_feuille = distance_stuck_fingers1 - distance_stuck_fingers2 < FEUILLE_THRESHOLD
+        if (is_feuille):
+            return FEUILLE
+
+        # Return None if no game posture has been recognized
+        return None
 
     def start_game(self, number_of_rounds):
         rounds_played = 0

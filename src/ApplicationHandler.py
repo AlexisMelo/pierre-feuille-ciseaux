@@ -1,6 +1,6 @@
 import cv2
 
-from etc.constants import LAUNCH_GAME, STATISTICS, FRAME_NAME
+from etc.constants import LAUNCH_GAME, MEMORY_SIZE, STATISTICS, FRAME_NAME
 from src.GameHandler import GameHandler
 from src.GameInterruptedException import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
@@ -36,7 +36,7 @@ def _is_hand_on_left_side(landmarks: Landmarks):
 class ApplicationHandler:
 
     def __init__(self):
-        self.memory = Memory(memory_size=10)
+        self.memory = Memory(memory_size=MEMORY_SIZE)
         self.draw = False
         self.statistics_handler = StatisticsHandler()
 

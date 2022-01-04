@@ -1,5 +1,6 @@
 import mediapipe as mp
 import cv2
+import numpy as np
 
 
 class Landmarks:
@@ -57,6 +58,22 @@ class Landmarks:
             y = self.landmarks[keypoint][1]
         return y
 
+    def get_distance_between(self, keypoint1, keypoint2):
+        """Return the distance beteween the 2 given keypoints
+        
+        Parameters
+        ----------
+        keypoint1 -- an int in [0,20], the 1st keypoint index
+        keypoint2 -- an int in [0,20], the 2nd keypoint index
+
+        Return
+        ------
+        distance -- a float, the distance between the 2 keypoints
+        """
+        kp1 = self.landmarks[keypoint1]
+        kp2 = self.landmarks[keypoint2]
+        return np.sqrt( (kp1[0]-kp2[0])**2 + (kp1[1]-kp2[1])**2 )
+        
 
 def get_landmarks(img, draw=False):
     """Get the landmarks of the hand if present in img.
