@@ -35,10 +35,10 @@ def _is_hand_on_left_side(landmarks: Landmarks):
 
 class ApplicationHandler:
 
-    def __init__(self):
+    def __init__(self, statistics_handler):
         self.memory = Memory(memory_size=MEMORY_SIZE)
         self.draw = False
-        self.statistics_handler = StatisticsHandler()
+        self.statistics_handler = statistics_handler
 
     def run_application(self):
         print("Avant toute chose... tu pourrais m'indiquer ton pseudo bg ?")

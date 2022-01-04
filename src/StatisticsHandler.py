@@ -17,22 +17,25 @@ class StatisticsHandler:
         self.stats_file_name = "stats.json"
         self.stats_path = f"{self.stats_folder}/{self.stats_file_name}"
 
+        self.data = default_dict
+
         if not os.path.exists(self.stats_path):
+            print(f"Création fichier {self.stats_path}")
             if not os.path.exists(self.stats_folder):
                 os.makedirs(self.stats_folder)
 
             with open(self.stats_path, "w") as file:
                 json.dump(default_dict, file, indent=4, sort_keys=True, ensure_ascii=False)
 
+        self.data = self.read_stats()
+
     def show_stats(self, pseudo):
         print("affichage des stats")
-        stats = self.read_stats()
-        pprint(stats)
-        self.write_stats(stats)
+        pprint(self.data)
 
     # https://stackabuse.com/reading-and-writing-json-to-a-file-in-python/
     def read_stats(self):
-        print("Lecture des données...")
+        print(f"Lecture des données de {self.stats_path}")
         with open(self.stats_path) as json_file:
             try:
                 data = json.load(json_file)
@@ -43,31 +46,24 @@ class StatisticsHandler:
             return data
 
     # https://stackabuse.com/reading-and-writing-json-to-a-file-in-python/
-    def write_stats(self, stats_dict=None):
-        if stats_dict is None:
-            stats_dict = default_dict
-        print("Écriture des données...")
+    def write_stats(self):
+        print(f"Écriture des données dans {self.stats_path}")
         with open(self.stats_path, 'w+') as outfile:
-            json.dump(stats_dict, outfile, indent=4, sort_keys=True, ensure_ascii=False)
+            json.dump(self.data, outfile, indent=4, sort_keys=True, ensure_ascii=False)
 
     def increment_stats_player(self, player, stat_name, value=1):
-        stats = self.read_stats()
-        if player not in stats["players"]:
-            stats["players"][player] = {
+        if player not in self.data["players"]:
+            self.data["players"][player] = {
                 stat_name: 0
             }
 
-        if stat_name not in stats["players"][player]:
-            stats["players"][player][stat_name] = 0
+        if stat_name not in self.data["players"][player]:
+            self.data["players"][player][stat_name] = 0
 
-        stats["players"][player][stat_name] = stats["players"][player][stat_name] + value
-
-        self.write_stats(stats)
+        self.data["players"][player][stat_name] = self.data["players"][player][stat_name] + value
 
     def increment_global_stats(self, stat_name, value=1):
-        stats = self.read_stats()
-        if stat_name not in stats:
-            stats[stat_name] = 0
+        if stat_name not in self.data:
+            self.data[stat_name] = 0
 
-        stats[stat_name] = stats[stat_name] + value
-        self.write_stats(stats)
+        self.data[stat_name] = self.data[stat_name] + value
