@@ -16,10 +16,10 @@ def run_app():
         # e.g. : frame = iu.write_score(frame)
         start_gesture = du.get_starting_gesture(frame)
         if start_gesture == LAUNCH_GAME:
-            nb_rounds = du.get_number_of_rounds_posture(frame)
+            nb_rounds = du.recognize_number_of_rounds_posture(frame)
             cpt = 0
             while cpt < nb_rounds:
-                posture_player = du.get_user_game_posture(frame)
+                posture_player = du.recognize_user_game_posture(frame)
                 posture_computer = get_computer_game_posture()
                 frame = iu.display_computer_game_posture(frame, posture_computer)
                 #cv2.waitKey(1) pour attendre

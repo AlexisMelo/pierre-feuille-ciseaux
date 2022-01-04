@@ -44,7 +44,7 @@ class StatisticsHandler:
         with open(self.stats_path, 'w+') as outfile:
             json.dump(stats_dict, outfile, indent=4, sort_keys=True, ensure_ascii=False)
 
-    def add_stats_player(self, player, stat_name, value=1):
+    def increment_stats_player(self, player, stat_name, value=1):
         stats = self.read_stats()
         if player not in stats.players:
             stats.players[player] = {

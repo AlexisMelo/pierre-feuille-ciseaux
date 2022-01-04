@@ -1,7 +1,7 @@
 import cv2
 
 from etc.constants import FRAME_NAME
-from src.GameInterruptedException import GameInterruptedException
+from src.CustomExceptions import GameInterruptedException
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 FONT_STROKE = 5

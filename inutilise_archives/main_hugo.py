@@ -75,7 +75,7 @@ def run_app_count_fingers():
         # Faire le traitement et les modifications d'images ici
         # Landmarks' keypoints coordinates (0,0) is top left, (1,1) is bottom right
         frame, landmarks = get_landmarks(frame, draw)
-        rounds = game_handler.get_number_of_rounds_posture(landmarks)
+        rounds = game_handler.recognize_number_of_rounds_posture(landmarks)
         if rounds is not None:
             # print(rounds)
             font = cv2.FONT_HERSHEY_SIMPLEX
