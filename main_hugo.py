@@ -64,7 +64,7 @@ def run_app_count_fingers():
     # define a video capture object (0 = default webcam)
     vid = cv2.VideoCapture(0)
     draw = False
-    game_handler = GameHandler(vid, StatisticsHandler())
+    game_handler = GameHandler(vid, "hugo", StatisticsHandler())
 
     while True:
         # Capture the video frame by frame
@@ -109,7 +109,7 @@ def run_app_get_posture():
     # define a video capture object (0 = default webcam)
     vid = cv2.VideoCapture(0)
     draw = False
-    game_handler = GameHandler(vid, StatisticsHandler())
+    game_handler = GameHandler(vid, "hugo", StatisticsHandler())
 
     while True:
         # Capture the video frame by frame
@@ -120,7 +120,7 @@ def run_app_get_posture():
         # Faire le traitement et les modifications d'images ici
         # Landmarks' keypoints coordinates (0,0) is top left, (1,1) is bottom right
         frame, landmarks = get_landmarks(frame, draw)
-        posture = game_handler.get_user_game_posture(landmarks)
+        posture = game_handler.recognize_user_game_posture(landmarks)
         if posture is not None:
             # print(rounds)
             font = cv2.FONT_HERSHEY_SIMPLEX
@@ -144,7 +144,7 @@ def run_app_get_posture():
             draw = not draw
         if key == ord("q"):
             break
-
+    print(frame.shape)
     # After the loop release the cap object
     vid.release()
     # Destroy all the windows
