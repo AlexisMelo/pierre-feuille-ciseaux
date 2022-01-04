@@ -148,7 +148,6 @@ class GameHandler:
             if key == ord("q"):
                 raise GameInterruptedException
 
-        self.statistics_handler.increment_stats_player(self.player, posture_player)
         return posture_player
 
     def recognize_user_game_posture(self, landmarks: Landmarks):
@@ -267,6 +266,9 @@ class GameHandler:
         posture_computer = self.get_computer_game_posture()
 
         display_blocking_message_center(self.video, f"Posture ordi : {posture_computer}", 25)
+
+        self.statistics_handler.increment_stats_player("computer", posture_computer)
+        self.statistics_handler.increment_stats_player(self.player, posture_player)
 
         return posture_player, posture_computer
 
