@@ -21,6 +21,25 @@ class Landmarks:
     def is_not_none(self):
         return self.landmarks != None
 
+    def get_keypoint_xy(self, keypoint):
+        """Return the (x,y) value of the wanted keypoint
+
+        Parameters
+        ----------
+        keypoint -- an int in [0,20], the keypoint index for which to return x value.
+            See https://google.github.io/mediapipe/solutions/hands.html for more details.
+
+        Return
+        ------
+        coordinates -- the (x,y) value associated to the keypoint (return None if self.landmarks is None)"""
+
+        assert keypoint >= 0 and keypoint <= 20
+
+        coordinates = None
+        if self.landmarks:
+            coordinates = self.landmarks[keypoint]
+        return coordinates
+
     def get_keypoint_x(self, keypoint):
         """Return the x value of the wanted keypoint
 

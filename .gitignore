@@ -2,4 +2,6 @@ __pycache__
 settings.json
 venv/
 .idea/
+.ipynb_checkpoints/
+*.ipynb
 var/
