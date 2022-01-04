@@ -20,7 +20,7 @@ FEUILLE_THRESHOLD = 0.05
 # FLoat between 0 and +inf
 # The closer it gets to 0, the more aligned the thumb as to be to be considered ad stretched
 # The bigger it gets, the less aligned tje thumb as to be to be considered as stretched
-ALIGNMENT_THRESHOLD = 0.007
+ALIGNMENT_THRESHOLD = 0.003
 
 
 ################

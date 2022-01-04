@@ -86,7 +86,7 @@ class GameHandler:
         if not landmarks.is_not_none():
             return None
 
-        thumb_up = are_aligned(landmarks.get_keypoint_xy(1), landmarks.get_keypoint_xy(2), landmarks.get_keypoint_xy(4))
+        thumb_up = are_aligned(landmarks.get_keypoint_xy(1), landmarks.get_keypoint_xy(2), landmarks.get_keypoint_xy(3))
         index_up = landmarks.get_distance_between(0,8) > landmarks.get_distance_between(0,6)
         middle_up = landmarks.get_distance_between(0,12) > landmarks.get_distance_between(0,10)
         ring_up = landmarks.get_distance_between(0,16) > landmarks.get_distance_between(0,14)

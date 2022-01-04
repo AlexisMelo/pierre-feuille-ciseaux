@@ -94,4 +94,5 @@ def are_aligned(point1, point2, point3) :
     x1, y1 = point1
     x2, y2 = point2
     x3, y3 = point3
+    #print(np.abs(((y1-y2)*(x1-x3)) - ((y1-y3)*(x1-x2))))
     return np.abs(((y1-y2)*(x1-x3)) - ((y1-y3)*(x1-x2))) < ALIGNMENT_THRESHOLD
