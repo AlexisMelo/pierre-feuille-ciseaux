@@ -175,20 +175,20 @@ class GameHandler:
         ring_down = landmarks.get_keypoint_y(16) > landmarks.get_keypoint_y(14)
         pinky_down = landmarks.get_keypoint_y(20) > landmarks.get_keypoint_y(18)
         is_ciseaux = ring_down and pinky_down and distance_top_fingers > CISEAUX_THRESHOLD*distance_bottom_fingers
-        if (is_ciseaux):
+        if is_ciseaux:
             return CISEAUX
         
         # The posture is a PIERRE if is all fingers aren't stretched
         # (i.e. if this were the posture to determine the nb of rounds, the result would be 0)
-        is_pierre = self.get_number_of_rounds_posture(landmarks) == 0
-        if (is_pierre):
+        is_pierre = self.recognize_number_of_rounds_posture(landmarks) == 0
+        if is_pierre:
             return PIERRE
 
         # The posture is a FEUILLE if the distance between keypoint 6 and 19 is close to 5 and 17
         distance_stuck_fingers1 = landmarks.get_distance_between(6,19)
         distance_stuck_fingers2 = landmarks.get_distance_between(5,17)
         is_feuille = distance_stuck_fingers1 - distance_stuck_fingers2 < FEUILLE_THRESHOLD
-        if (is_feuille):
+        if is_feuille:
             return FEUILLE
 
         # Return None if no game posture has been recognized
