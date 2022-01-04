@@ -51,15 +51,15 @@ class StatisticsHandler:
 
     def increment_stats_player(self, player, stat_name, value=1):
         stats = self.read_stats()
-        if player not in stats.players:
-            stats.players[player] = {
+        if player not in stats["players"]:
+            stats["players"][player] = {
                 stat_name: 0
             }
 
-        if stat_name not in stats.players[player]:
-            stats.players[player][stat_name] = 0
+        if stat_name not in stats["players"][player]:
+            stats["players"][player][stat_name] = 0
 
-        stats.players[player][stat_name] = stats.players[player][stat_name] + value
+        stats["players"][player][stat_name] = stats["players"][player][stat_name] + value
 
         self.write_stats(stats)
 

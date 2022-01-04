@@ -71,7 +71,7 @@ class ApplicationHandler:
                     if gesture == LAUNCH_GAME:
                         display_blocking_message_center(video, "Creation d'une nouvelle partie", 25,
                                                         font_color=(0, 0, 255))
-                        game_handler = GameHandler(video, self.statistics_handler)
+                        game_handler = GameHandler(video, pseudo, self.statistics_handler)
                         game_handler.initialize_game()
                     elif gesture == STATISTICS:
                         display_blocking_message_center(video, "Affichage des statistiques", 25, font_color=(0, 0, 255))

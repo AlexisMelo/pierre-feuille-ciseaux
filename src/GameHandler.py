@@ -2,9 +2,9 @@ import random
 
 import cv2
 
-from etc.constants import FEUILLE, FEUILLE_THRESHOLD, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN, CISEAUX_THRESHOLD
+from etc.constants import FEUILLE, FEUILLE_THRESHOLD, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN, \
+    CISEAUX_THRESHOLD
 from src.CustomExceptions import GameInterruptedException
-
 from src.Landmarks import Landmarks, get_landmarks
 from src.StatisticsHandler import StatisticsHandler
 from src.utils import display_blocking_message_center, display_non_blocking_message_top_left, \
@@ -13,18 +13,17 @@ from src.utils import display_blocking_message_center, display_non_blocking_mess
 
 class GameHandler:
 
-    def __init__(self, video, statistics_handler: StatisticsHandler):
+    def __init__(self, video, player, statistics_handler: StatisticsHandler):
         self.video = video
         self.draw = False
+        self.player = player
         self.statistics_handler = statistics_handler
 
     def initialize_game(self):
         self.statistics_handler.increment_global_stats("games_played")
-
         number_of_rounds = self.get_number_of_rounds()
         display_blocking_message_center(self.video, f"C'est parti pour {number_of_rounds} rounds !", 25,
                                         font_color=(255, 0, 0))
-        self.statistics_handler.increment_global_stats("rounds_expected_to_be_played", number_of_rounds)
         self.start_game(number_of_rounds)
 
     def get_number_of_rounds(self):
@@ -64,6 +63,8 @@ class GameHandler:
                 self.draw = not self.draw
             elif key == ord("q"):
                 raise GameInterruptedException
+
+        self.statistics_handler.increment_global_stats("rounds_expected_to_be_played", number_of_rounds)
         return number_of_rounds
 
     def recognize_number_of_rounds_posture(self, landmarks: Landmarks):
@@ -147,6 +148,7 @@ class GameHandler:
             if key == ord("q"):
                 raise GameInterruptedException
 
+        self.statistics_handler.increment_stats_player(self.player, posture_player)
         return posture_player
 
     def recognize_user_game_posture(self, landmarks: Landmarks):
@@ -166,18 +168,18 @@ class GameHandler:
 
         if not landmarks.is_not_none():
             return None
-        
+
         # The posture is a CISEAUX if the space between keypoint 8 and 12 
         # is wider than the space between 5 and 9
         # and if ring and pinky fingers aren't stretched
-        distance_top_fingers = landmarks.get_distance_between(8,12)
-        distance_bottom_fingers = landmarks.get_distance_between(5,9)
+        distance_top_fingers = landmarks.get_distance_between(8, 12)
+        distance_bottom_fingers = landmarks.get_distance_between(5, 9)
         ring_down = landmarks.get_keypoint_y(16) > landmarks.get_keypoint_y(14)
         pinky_down = landmarks.get_keypoint_y(20) > landmarks.get_keypoint_y(18)
-        is_ciseaux = ring_down and pinky_down and distance_top_fingers > CISEAUX_THRESHOLD*distance_bottom_fingers
+        is_ciseaux = ring_down and pinky_down and distance_top_fingers > CISEAUX_THRESHOLD * distance_bottom_fingers
         if is_ciseaux:
             return CISEAUX
-        
+
         # The posture is a PIERRE if is all fingers aren't stretched
         # (i.e. if this were the posture to determine the nb of rounds, the result would be 0)
         is_pierre = self.recognize_number_of_rounds_posture(landmarks) == 0
@@ -185,8 +187,8 @@ class GameHandler:
             return PIERRE
 
         # The posture is a FEUILLE if the distance between keypoint 6 and 19 is close to 5 and 17
-        distance_stuck_fingers1 = landmarks.get_distance_between(6,19)
-        distance_stuck_fingers2 = landmarks.get_distance_between(5,17)
+        distance_stuck_fingers1 = landmarks.get_distance_between(6, 19)
+        distance_stuck_fingers2 = landmarks.get_distance_between(5, 17)
         is_feuille = distance_stuck_fingers1 - distance_stuck_fingers2 < FEUILLE_THRESHOLD
         if is_feuille:
             return FEUILLE
@@ -197,19 +199,10 @@ class GameHandler:
     def start_game(self, number_of_rounds):
         rounds_played = 0
         player_rounds_won = 0
-        computer_won_rounds = 0
+        computer_rounds_won = 0
         while rounds_played < number_of_rounds:
 
-            display_blocking_message_center(self.video, f"Round {rounds_played + 1} / {number_of_rounds}", 25,
-                                            font_color=(255, 0, 0))
-
-            posture_player = self.get_user_posture()
-
-            display_blocking_message_center(self.video, f"Acquisition humain : {posture_player}", 15)
-
-            posture_computer = self.get_computer_game_posture()
-
-            display_blocking_message_center(self.video, f"Posture ordi : {posture_computer}", 25)
+            posture_player, posture_computer = self.get_round_postures(rounds_played, number_of_rounds)
 
             winner = self.get_winner(posture_player, posture_computer)
 
@@ -226,29 +219,56 @@ class GameHandler:
                                                 25,
                                                 font_size=1,
                                                 font_stroke=2)
-                computer_won_rounds = computer_won_rounds + 1
+                computer_rounds_won = computer_rounds_won + 1
             else:
                 display_blocking_message_center(self.video, f"Match nul ! Aucun gagnant ce round", 25)
 
             rounds_played = rounds_played + 1
+            self.statistics_handler.increment_global_stats("rounds_played")
 
             key = cv2.pollKey() & 0xFF
             if key == ord("q"):
                 raise GameInterruptedException
 
-        if player_rounds_won > computer_won_rounds:
+        if player_rounds_won > computer_rounds_won:
             display_blocking_message_center(self.video,
-                                            f"Victoire {player_rounds_won} rounds a {computer_won_rounds} !", 50,
+                                            f"Victoire {player_rounds_won} rounds a {computer_rounds_won} !", 50,
                                             font_color=(0, 255, 0))
-        elif computer_won_rounds > player_rounds_won:
+            self.statistics_handler.increment_stats_player(self.player, "games_won")
+        elif computer_rounds_won > player_rounds_won:
             display_blocking_message_center(self.video,
-                                            f"Defaite {player_rounds_won} rounds a {computer_won_rounds} ...", 50,
+                                            f"Defaite {player_rounds_won} rounds a {computer_rounds_won} ...", 50,
                                             font_color=(0, 0, 255))
+            self.statistics_handler.increment_stats_player("computer", "games_won")
         else:
             display_blocking_message_center(self.video,
                                             f"Egalite ! Aucun gagnant cette fois-ci...",
                                             50,
                                             font_color=(255, 0, 0))
+            self.statistics_handler.increment_global_stats("games_even")
+
+        self.log_rounds_to_stats(self.player, player_rounds_won, computer_rounds_won, rounds_played)
+        self.log_rounds_to_stats("computer", player_rounds_won, computer_rounds_won, rounds_played)
+
+    def log_rounds_to_stats(self, player, player_rounds_won, computer_rounds_won, rounds_played):
+        self.statistics_handler.increment_stats_player(player, "rounds_won", player_rounds_won)
+        self.statistics_handler.increment_stats_player(player, "rounds_lost", computer_rounds_won)
+        self.statistics_handler.increment_stats_player(player, "rounds_even",
+                                                       rounds_played - player_rounds_won - computer_rounds_won)
+
+    def get_round_postures(self, rounds_played, number_of_rounds):
+        display_blocking_message_center(self.video, f"Round {rounds_played + 1} / {number_of_rounds}", 25,
+                                        font_color=(255, 0, 0))
+
+        posture_player = self.get_user_posture()
+
+        display_blocking_message_center(self.video, f"Acquisition humain : {posture_player}", 15)
+
+        posture_computer = self.get_computer_game_posture()
+
+        display_blocking_message_center(self.video, f"Posture ordi : {posture_computer}", 25)
+
+        return posture_player, posture_computer
 
     def get_computer_game_posture(self):
         return random.choice([FEUILLE, PIERRE, CISEAUX])
