@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD 
-from src.GameInterruptedException import GameInterruptedException
+from src.CustomExceptions import GameInterruptedException
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 FONT_STROKE = 5

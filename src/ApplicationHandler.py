@@ -2,7 +2,7 @@ import cv2
 
 from etc.constants import LAUNCH_GAME, MEMORY_SIZE, STATISTICS, FRAME_NAME
 from src.GameHandler import GameHandler
-from src.GameInterruptedException import GameInterruptedException
+from src.CustomExceptions import GameInterruptedException, ApplicationInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.Memory import Memory
 from src.StatisticsHandler import StatisticsHandler
@@ -55,8 +55,7 @@ class ApplicationHandler:
                 success, frame = video.read(0)  # Capture video frame by frame
 
                 if not success:
-                    print("Problème de lecture vidéo... arrêt du programme")
-                    break
+                    raise RuntimeError("Problème de lecture vidéo... arrêt du programme")
 
                 frame = cv2.flip(frame, 1)  # Flip the image horizontally for a selfie-view display
 
@@ -72,7 +71,7 @@ class ApplicationHandler:
                     if gesture == LAUNCH_GAME:
                         display_blocking_message_center(video, "Creation d'une nouvelle partie", 25,
                                                         font_color=(0, 0, 255))
-                        game_handler = GameHandler(video, self.statistics_handler)
+                        game_handler = GameHandler(video, pseudo, self.statistics_handler)
                         game_handler.initialize_game()
                     elif gesture == STATISTICS:
                         display_blocking_message_center(video, "Affichage des statistiques", 25, font_color=(0, 0, 255))
@@ -84,10 +83,14 @@ class ApplicationHandler:
                 if key == ord("d"):
                     self.draw = not self.draw
                 if key == ord("q"):
-                    raise GameInterruptedException
+                    raise ApplicationInterruptedException
+        except ApplicationInterruptedException:
+            print("Application interrompue volontairement")
         except GameInterruptedException:
-            print("Partie interrompue (touche Q)")
+            print("Partie interrompue volontairement")
             self.statistics_handler.increment_global_stats("games_abandoned")
+        except Exception as e:
+            print(f"Partie interrompue subitement : {e}")
 
         print("Arrêt de la capture")
         video.release()
