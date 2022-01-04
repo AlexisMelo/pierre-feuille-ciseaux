@@ -1,6 +1,7 @@
 import cv2
 
 from etc.constants import FRAME_NAME
+from src.GameInterruptedException import GameInterruptedException
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 FONT_STROKE = 5
@@ -10,9 +11,8 @@ def display_blocking_message_center(video, message, number_of_frames, font_size=
                                     font_color=(255, 255, 255, 255),
                                     font_stroke=FONT_STROKE):
     number_of_frames_shown = 0
-    key = False
 
-    while key != ord("q") and number_of_frames_shown < number_of_frames:
+    while number_of_frames_shown < number_of_frames:
 
         success, frame = video.read(0)
 
@@ -41,6 +41,8 @@ def display_blocking_message_center(video, message, number_of_frames, font_size=
         number_of_frames_shown = number_of_frames_shown + 1
 
         key = cv2.pollKey() & 0xFF
+        if key == ord("q"):
+            raise GameInterruptedException
 
 
 def display_non_blocking_message_top_left(frame, message, font_size=2, font_color=(0, 0, 0)):

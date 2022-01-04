@@ -2,6 +2,7 @@ import cv2
 
 from etc.constants import LAUNCH_GAME, STATISTICS, FRAME_NAME
 from src.GameHandler import GameHandler
+from src.GameInterruptedException import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.Memory import Memory
 from src.StatisticsHandler import StatisticsHandler
@@ -37,6 +38,7 @@ class ApplicationHandler:
     def __init__(self):
         self.memory = Memory(memory_size=10)
         self.draw = False
+        self.statistics_handler = StatisticsHandler()
 
     def run_application(self):
         print("Avant toute chose... tu pourrais m'indiquer ton pseudo bg ?")
@@ -46,42 +48,46 @@ class ApplicationHandler:
         video = cv2.VideoCapture(0)
         video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        key = False
         last_gesture = None
 
-        while key != ord("q"):
-            success, frame = video.read(0)  # Capture video frame by frame
+        try:
+            while True:
+                success, frame = video.read(0)  # Capture video frame by frame
 
-            if not success:
-                print("Problème de lecture vidéo... arrêt du programme")
-                break
+                if not success:
+                    print("Problème de lecture vidéo... arrêt du programme")
+                    break
 
-            frame = cv2.flip(frame, 1)  # Flip the image horizontally for a selfie-view display
+                frame = cv2.flip(frame, 1)  # Flip the image horizontally for a selfie-view display
 
-            display_non_blocking_message_top_left(frame, "Effectuez un geste de debut de partie")
+                display_non_blocking_message_top_left(frame, "Effectuez un geste de debut de partie")
 
-            frame, landmarks = get_landmarks(frame, self.draw)
-            self.memory.add(landmarks)
-            gesture = self.get_starting_gesture(self.memory)
+                frame, landmarks = get_landmarks(frame, self.draw)
+                self.memory.add(landmarks)
+                gesture = self.get_starting_gesture(self.memory)
 
-            cv2.imshow(FRAME_NAME, frame)
+                cv2.imshow(FRAME_NAME, frame)
 
-            if gesture and last_gesture != gesture:
-                if gesture == LAUNCH_GAME:
-                    display_blocking_message_center(video, "Creation d'une nouvelle partie", 25,
-                                                    font_color=(0, 0, 255))
-                    game_handler = GameHandler(video)
-                    game_handler.initialize_game()
-                elif gesture == STATISTICS:
-                    display_blocking_message_center(video, "Affichage des statistiques", 25, font_color=(0, 0, 255))
-                    statistics_handler = StatisticsHandler(video)
-                    statistics_handler.show_stats(pseudo)
+                if gesture and last_gesture != gesture:
+                    if gesture == LAUNCH_GAME:
+                        display_blocking_message_center(video, "Creation d'une nouvelle partie", 25,
+                                                        font_color=(0, 0, 255))
+                        game_handler = GameHandler(video)
+                        game_handler.initialize_game()
+                    elif gesture == STATISTICS:
+                        display_blocking_message_center(video, "Affichage des statistiques", 25, font_color=(0, 0, 255))
+                        self.statistics_handler.show_stats(pseudo)
 
-            last_gesture = gesture
+                last_gesture = gesture
 
-            key = cv2.pollKey() & 0xFF
-            if key == ord("d"):
-                self.draw = not self.draw
+                key = cv2.pollKey() & 0xFF
+                if key == ord("d"):
+                    self.draw = not self.draw
+                if key == ord("q"):
+                    raise GameInterruptedException
+        except GameInterruptedException:
+            print("Partie interrompue (touche Q)")
+            self.statistics_handler.increment_global_stats("games_abandoned")
 
         print("Arrêt de la capture")
         video.release()
