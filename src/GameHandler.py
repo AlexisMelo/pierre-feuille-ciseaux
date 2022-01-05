@@ -182,8 +182,9 @@ class GameHandler:
             return CISEAUX
 
         # The posture is a PIERRE if is all fingers aren't stretched
-        # (i.e. if this were the posture to determine the nb of rounds, the result would be 0)
-        is_pierre = self.recognize_number_of_rounds_posture(landmarks) == 0
+        # (thumb isn't stretched if keypint 4 is "close" to 10)
+        thumb_close_to_middle = landmarks.get_distance_between(4, 10) < landmarks.get_distance_between(1,2)
+        is_pierre = not index_up and not middle_up and not ring_up and not pinky_up and thumb_close_to_middle
         if is_pierre:
             return PIERRE
 
