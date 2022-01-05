@@ -4,6 +4,7 @@ import cv2
 
 from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD, FONT, FONT_LARGE
 from src.CustomExceptions import GameInterruptedException
+from src.Landmarks import Landmarks
 
 
 def display_non_blocking_message(frame, message, font=FONT_LARGE, font_color=(0, 0, 0),
@@ -76,18 +77,38 @@ def display_non_blocking_message_top_center(frame, message, font=FONT_LARGE, fon
                                  font_color=font_color)
 
 
-def are_aligned(point1, point2, point3):
-    """Determine is the 3 given points are aligned
-    
+def get_number_stretched_fingers(landmarks: Landmarks):
+    """
+    Return the number of stretched fingers corresponding to the numbers of rounds.
+
+    The hand has to be correctly oriented (top of fingers towards the
+    top of the image from woth the landmarks has been extracted).
+    Works if it's either the hand palm facing the camera or the back of the hand.
+
+    If the landmarks object attribute containing the keypoints is None,
+    (i.e. no hand detected) the function returns None.
+
     Parameters
     ----------
-    point1, point2, point3 : float tuples under (x,y) format
+    landmarks -- The landmarks object of the hand for which we want to count the fingers
 
     Return
     ------
-    a boolean -- True if the points are aligned at tolerance ALIGNMENT_THRESHOLD
+    an int -- the number of stretched fingers (in [0,5])
     """
-    x1, y1 = point1
-    x2, y2 = point2
-    x3, y3 = point3
-    return abs(((y1 - y2) * (x1 - x3)) - ((y1 - y3) * (x1 - x2))) < ALIGNMENT_THRESHOLD
+    if not landmarks.is_not_none():
+        return None
+
+    # Determine if it's the palm or the back that is facing the camera
+    # in order to choose the condition determining if the thumb is stretched or not
+    palm_facing_camera = landmarks.get_keypoint_x(5) < landmarks.get_keypoint_x(17)
+    if palm_facing_camera:
+        thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
+    else:
+        thumb_up = landmarks.get_keypoint_x(4) > landmarks.get_keypoint_x(2)
+
+    index_up = landmarks.get_distance_between(0, 8) > landmarks.get_distance_between(0, 6)
+    middle_up = landmarks.get_distance_between(0, 12) > landmarks.get_distance_between(0, 10)
+    ring_up = landmarks.get_distance_between(0, 16) > landmarks.get_distance_between(0, 14)
+    pinky_up = landmarks.get_distance_between(0, 20) > landmarks.get_distance_between(0, 18)
+    return int(thumb_up) + int(index_up) + int(middle_up) + int(ring_up) + int(pinky_up)

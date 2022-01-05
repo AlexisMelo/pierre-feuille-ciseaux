@@ -14,7 +14,12 @@ def run_app_gesture():
     draw = False
     i = 0
     j = 0
-    app_handler = ApplicationHandler()
+    app_handler = ApplicationHandler(StatisticsHandler())
+    print("Choisissez le mode de fonctionnement :")
+    print("1 : Détection LAUNCH et STATISTICS")
+    print("2 : Détection CLOSE")
+    print()
+    mode = int(input())
 
     while True:
         # Capture the video frame by frame
@@ -25,13 +30,20 @@ def run_app_gesture():
         # Faire le traitement et les modifications d'images ici
         frame, landmarks = get_landmarks(frame, draw)
         im.add(landmarks)
-        gesture = app_handler.get_starting_gesture(im)
-        if gesture == LAUNCH_GAME:
-            i += 1
-            print("LAUNCH ", i)
-        elif gesture == STATISTICS:
-            j += 1
-            print("STATISTICS ", j)
+
+        if mode == 1:
+            gesture = app_handler.get_starting_gesture(im)
+            if gesture == LAUNCH_GAME:
+                i += 1
+                print("LAUNCH ", i)
+            elif gesture == STATISTICS:
+                j += 1
+                print("STATISTICS ", j)
+        elif mode == 2:
+            gesture = app_handler.get_closing_gesture(im)
+            if gesture == CLOSE:
+                i += 1
+                print("CLOSE ", i)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
         position = (0, 70)
