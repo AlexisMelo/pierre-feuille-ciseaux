@@ -14,9 +14,9 @@ POSSIBLE_GAME_POSTURES = [PIERRE, FEUILLE, CISEAUX]
 CISEAUX_THRESHOLD = 2
 
 # Float between 0 included and +inf
-# The closer it gets to 0, the more stuck the fingers has to be in order to be recognized has a FEUILLE
+# The closer it gets to 1, the more stuck the fingers has to be in order to be recognized has a FEUILLE
 # The bigger it gets, the less stuck the fingers has to be in order to be recognized has a FEUILLE
-FEUILLE_THRESHOLD = 0.05
+FEUILLE_THRESHOLD = 1.2
 
 # FLoat between 0 and +inf
 # The closer it gets to 0, the more aligned the thumb as to be to be considered ad stretched

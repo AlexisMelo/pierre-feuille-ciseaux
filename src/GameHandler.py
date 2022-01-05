@@ -182,7 +182,7 @@ class GameHandler:
             return CISEAUX
 
         # The posture is a PIERRE if is all fingers aren't stretched
-        # (thumb isn't stretched if keypint 4 is "close" to 10)
+        # (thumb isn't stretched if keypoint 4 is "close" to 10)
         thumb_close_to_middle = landmarks.get_distance_between(4, 10) < landmarks.get_distance_between(1,2)
         is_pierre = not index_up and not middle_up and not ring_up and not pinky_up and thumb_close_to_middle
         if is_pierre:
@@ -191,7 +191,7 @@ class GameHandler:
         # The posture is a FEUILLE if the distance between keypoint 6 and 19 is close to 5 and 17
         distance_stuck_fingers1 = landmarks.get_distance_between(7, 20)
         distance_stuck_fingers2 = landmarks.get_distance_between(5, 17)
-        finger_stuck = distance_stuck_fingers1 - distance_stuck_fingers2 < FEUILLE_THRESHOLD
+        finger_stuck = distance_stuck_fingers1 < FEUILLE_THRESHOLD * distance_stuck_fingers2 
         is_feuille = finger_stuck and index_up and middle_up and ring_up and pinky_up
         if is_feuille:
             return FEUILLE
