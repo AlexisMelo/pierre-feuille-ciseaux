@@ -35,7 +35,6 @@ class StatisticsHandler:
         self.data = self.read_stats()
 
     def show_stats(self, video, pseudo):
-        print("affichage des stats")
         number_of_frames_shown = 0
         number_of_frames = 100
 
