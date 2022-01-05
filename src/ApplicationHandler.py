@@ -1,12 +1,12 @@
 import cv2
 
-from etc.constants import LAUNCH_GAME, MEMORY_SIZE, STATISTICS, FRAME_NAME
+from etc.constants import LAUNCH_GAME, MEMORY_SIZE, STATISTICS, FRAME_NAME, CLOSE
 from src.GameHandler import GameHandler
 from src.CustomExceptions import GameInterruptedException, ApplicationInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.Memory import Memory
 from src.StatisticsHandler import StatisticsHandler
-from src.utils import display_blocking_message_center, display_non_blocking_message_top_left
+from src.utils import display_blocking_message_center, display_non_blocking_message_top_left, get_number_stretched_fingers
 
 
 def _is_hand_at_bottom(landmarks: Landmarks):
@@ -32,6 +32,15 @@ def _is_hand_on_left_side(landmarks: Landmarks):
         return True
     return False
 
+def  _is_hand_open(landmarks: Landmarks):
+    if landmarks.is_not_none() and get_number_stretched_fingers(landmarks) == 5:
+        return True
+    return False
+
+def  _is_hand_closed(landmarks: Landmarks):
+    if landmarks.is_not_none() and get_number_stretched_fingers(landmarks) == 0:
+        return True
+    return False
 
 class ApplicationHandler:
 
@@ -100,7 +109,14 @@ class ApplicationHandler:
         """
         Return the gesture made by the hand on the image
         which is an element of POSSIBLE_GESTURES
-        Code obtained from https://google.github.io/mediapipe/solutions/hands
+
+        Parameters
+        ----------
+        memory -- a Memory object, the memory to search in
+
+        Return
+        ------
+        a string -- The recognized gesture LAUNCH_GAME or STATISTICS, or None if nothing is detected
         """
         if not memory:
             return None
@@ -123,5 +139,27 @@ class ApplicationHandler:
 
         if swipe_left_to_right:
             return LAUNCH_GAME
-
+        
         return STATISTICS
+
+    def get_closing_gesture(self, memory: Memory):
+        """Return the gesture CLOSE if detected in memory
+
+        Parameters
+        ----------
+        memory -- a Memory object, the memory to search in
+
+        Return
+        ------
+        a string -- CLOSE if closing gesture is recognized, else None
+        """
+        oldest_landmarks = memory.get_oldest_data()
+        newest_landmarks = memory.get_newest_data()
+        oldest_hand_open = _is_hand_open(oldest_landmarks)
+        newest_hand_closed = _is_hand_closed(newest_landmarks)
+        closing_gesture = oldest_hand_open and newest_hand_closed
+        if closing_gesture:
+            return CLOSE
+        else:
+            return None
+

@@ -30,6 +30,7 @@ ALIGNMENT_THRESHOLD = 0.003
 LAUNCH_GAME = "launch_game"
 STATISTICS = "statistics"
 POSSIBLE_GESTURES = [LAUNCH_GAME, STATISTICS]
+CLOSE = "close"
 # Keep the 10 last images data in memory to detect the gestures
 MEMORY_SIZE = 10
 
