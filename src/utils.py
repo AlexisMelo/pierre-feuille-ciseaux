@@ -1,3 +1,5 @@
+import time
+
 import cv2
 
 from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD, FONT, FONT_LARGE
@@ -17,11 +19,12 @@ def display_non_blocking_message(frame, message, font=FONT_LARGE, font_color=(0,
     )
 
 
-def display_blocking_message_center(video, message, number_of_frames, font=FONT_LARGE,
+def display_blocking_message_center(video, message, seconds, font=FONT_LARGE,
                                     font_color=(255, 255, 255, 255)):
-    number_of_frames_shown = 0
 
-    while number_of_frames_shown < number_of_frames:
+    timeout = time.time() + seconds # X seconds depuis mtn
+
+    while time.time() < timeout:
 
         success, frame = video.read(0)
 
@@ -40,8 +43,6 @@ def display_blocking_message_center(video, message, number_of_frames, font=FONT_
                                      font_color=font_color)
 
         cv2.imshow(FRAME_NAME, frame)
-
-        number_of_frames_shown = number_of_frames_shown + 1
 
         key = cv2.pollKey() & 0xFF
         if key == ord("q"):

@@ -22,7 +22,7 @@ class GameHandler:
     def initialize_game(self):
         self.statistics_handler.increment_global_stats("games_played")
         number_of_rounds = self.get_number_of_rounds()
-        display_blocking_message_center(self.video, f"C'est parti pour {number_of_rounds} rounds !", 25,
+        display_blocking_message_center(self.video, f"C'est parti pour {number_of_rounds} rounds !", seconds=3,
                                         font_color=(255, 0, 0))
         self.start_game(number_of_rounds)
 
@@ -211,17 +211,17 @@ class GameHandler:
             if winner == PLAYER_WIN:
                 display_blocking_message_center(self.video,
                                                 f"Bravo ! Tu remportes le round ({posture_player} > {posture_computer})",
-                                                25,
+                                                seconds=3,
                                                 font=FONT_NORMAL)
                 player_rounds_won = player_rounds_won + 1
             elif winner == COMPUTER_WIN:
                 display_blocking_message_center(self.video,
                                                 f"Dommage, l'ordinateur remporte le round ({posture_computer} > {posture_player})",
-                                                25,
+                                                seconds=3,
                                                 font=FONT_NORMAL)
                 computer_rounds_won = computer_rounds_won + 1
             else:
-                display_blocking_message_center(self.video, f"Match nul ! Aucun gagnant ce round", 25)
+                display_blocking_message_center(self.video, f"Match nul ! Aucun gagnant ce round", seconds=3)
 
             rounds_played = rounds_played + 1
             self.statistics_handler.increment_global_stats("rounds_played")
@@ -232,21 +232,23 @@ class GameHandler:
 
         if player_rounds_won > computer_rounds_won:
             display_blocking_message_center(self.video,
-                                            f"Victoire {player_rounds_won} rounds a {computer_rounds_won} !", 50,
+                                            f"Victoire {player_rounds_won} rounds a {computer_rounds_won} !",
+                                            seconds=4,
                                             font_color=(0, 255, 0))
             self.statistics_handler.increment_stats_player(self.player, "games_won")
             self.statistics_handler.increment_stats_player("computer", "games_lost")
 
         elif computer_rounds_won > player_rounds_won:
             display_blocking_message_center(self.video,
-                                            f"Defaite {player_rounds_won} rounds a {computer_rounds_won} ...", 50,
+                                            f"Defaite {player_rounds_won} rounds a {computer_rounds_won} ...",
+                                            seconds=4,
                                             font_color=(0, 0, 255))
             self.statistics_handler.increment_stats_player("computer", "games_won")
             self.statistics_handler.increment_stats_player(self.player, "games_lost")
         else:
             display_blocking_message_center(self.video,
                                             f"Egalite ! Aucun gagnant cette fois-ci...",
-                                            50,
+                                            seconds=4,
                                             font_color=(255, 0, 0))
             self.statistics_handler.increment_global_stats("games_even")
             self.statistics_handler.increment_stats_player(self.player, "games_even")
@@ -263,16 +265,17 @@ class GameHandler:
                                                        rounds_played - player_rounds_won - computer_rounds_won)
 
     def get_round_postures(self, rounds_played, number_of_rounds):
-        display_blocking_message_center(self.video, f"Round {rounds_played + 1} / {number_of_rounds}", 25,
+        display_blocking_message_center(self.video, f"Round {rounds_played + 1} / {number_of_rounds}",
+                                        seconds=2,
                                         font_color=(255, 0, 0))
 
         posture_player = self.get_user_posture()
 
-        display_blocking_message_center(self.video, f"Acquisition humain : {posture_player}", 15)
+        display_blocking_message_center(self.video, f"Acquisition humain : {posture_player}", seconds=2)
 
         posture_computer = self.get_computer_game_posture()
 
-        display_blocking_message_center(self.video, f"Posture ordi : {posture_computer}", 25)
+        display_blocking_message_center(self.video, f"Posture ordi : {posture_computer}", seconds=2)
 
         self.statistics_handler.increment_stats_player("computer", posture_computer)
         self.statistics_handler.increment_stats_player(self.player, posture_player)
