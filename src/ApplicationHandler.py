@@ -85,6 +85,9 @@ class ApplicationHandler:
                     elif gesture == STATISTICS:
                         display_blocking_message_center(video, "Affichage des statistiques", seconds=3, font_color=(0, 0, 255))
                         self.statistics_handler.show_stats(video, pseudo)
+                    elif gesture == CLOSE:
+                        display_blocking_message_center(video, "Au revoir !", seconds=1, font_color=(0, 0, 255))
+                        raise ApplicationInterruptedException
 
                 last_gesture = gesture
 
@@ -133,6 +136,12 @@ class ApplicationHandler:
         swipe_left_to_right = oldest_hand_on_left_side and newest_hand_on_right_side
         swipe_top_to_bottom = oldest_hand_at_top and newest_hand_at_bottom
 
+        oldest_hand_open = _is_hand_open(oldest_landmarks)
+        newest_hand_closed = _is_hand_closed(newest_landmarks)
+
+        if oldest_hand_open and newest_hand_closed:
+            return CLOSE
+
         # If either both or none of the 2 gestures are detected, return None
         if swipe_top_to_bottom == swipe_left_to_right:
             return None
@@ -141,25 +150,4 @@ class ApplicationHandler:
             return LAUNCH_GAME
         
         return STATISTICS
-
-    def get_closing_gesture(self, memory: Memory):
-        """Return the gesture CLOSE if detected in memory
-
-        Parameters
-        ----------
-        memory -- a Memory object, the memory to search in
-
-        Return
-        ------
-        a string -- CLOSE if closing gesture is recognized, else None
-        """
-        oldest_landmarks = memory.get_oldest_data()
-        newest_landmarks = memory.get_newest_data()
-        oldest_hand_open = _is_hand_open(oldest_landmarks)
-        newest_hand_closed = _is_hand_closed(newest_landmarks)
-        closing_gesture = oldest_hand_open and newest_hand_closed
-        if closing_gesture:
-            return CLOSE
-        else:
-            return None
 
