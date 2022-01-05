@@ -3,7 +3,7 @@ import os
 
 import cv2
 
-from etc.constants import FRAME_NAME, FONT_SMALL
+from etc.constants import FRAME_NAME, FONT_SMALL, FONT_XS, FONT_LARGE, FONT_NORMAL
 from src.CustomExceptions import GameInterruptedException
 from src.utils import display_non_blocking_message_top_center, display_non_blocking_message
 
@@ -37,7 +37,7 @@ class StatisticsHandler:
     def show_stats(self, video, pseudo):
         print("affichage des stats")
         number_of_frames_shown = 0
-        number_of_frames = 20
+        number_of_frames = 100
 
         while number_of_frames_shown < number_of_frames:
 
@@ -49,9 +49,10 @@ class StatisticsHandler:
             frame = cv2.flip(frame, 1)
 
             display_non_blocking_message_top_center(frame, "Statistics")
-            display_non_blocking_message(frame, pseudo[:20], position=(25, 200), font=FONT_SMALL)
-            display_non_blocking_message(frame, "Global", position=(600, 200), font=FONT_SMALL)
-            display_non_blocking_message(frame, "computer", position=(1100, 200), font=FONT_SMALL)
+
+            self.display_stats_player(frame, pseudo, (25, 200))
+            self.display_stats_player(frame, "computer", (1050, 200))
+            self.display_globals(frame, (500, 200))
 
             cv2.imshow(FRAME_NAME, frame)
 
@@ -60,6 +61,62 @@ class StatisticsHandler:
             key = cv2.pollKey() & 0xFF
             if key == ord("q"):
                 raise GameInterruptedException
+
+    def display_stats_player(self, frame, pseudo, position):
+        if pseudo not in self.data["players"]:
+            self.data["players"][pseudo] = {}
+
+        display_non_blocking_message(frame, pseudo, position=position, font=FONT_SMALL)
+
+        properties = [("Wins", "games_won"),
+                      ("Ties", "games_even"),
+                      ("Losses", "games_lost"),
+                      ("-", "-"),
+                      ("Pierres", "pierre"),
+                      ("Feuilles", "feuille"),
+                      ("Ciseaux", "ciseaux"),
+                      ("-", "-"),
+                      ("Rounds won", "rounds_won"),
+                      ("Rounds even", "rounds_even"),
+                      ("Rounds lost", "rounds_lost")]
+        position_gap = 50
+
+        for prop in properties:
+            if prop[0] == "-":
+                position_gap += 30
+                continue
+
+            display_non_blocking_message(frame,
+                                         f"{self.data['players'][pseudo].get(prop[1], 0)} {prop[0]}",
+                                         position=(position[0], position[1] + position_gap),
+                                         font=FONT_XS,
+                                         font_color=(255, 0, 0))
+            position_gap += 30
+
+    def display_globals(self, frame, position):
+        properties = [("Games played", "games_played"),
+                      ("Games abandoned", "games_abandoned"),
+                      ("Games ended in ties", "games_even"),
+                      ("-", "-"),
+                      ("Rounds expected to be played", "rounds_expected_to_be_played"),
+                      ("Rounds really played", "rounds_played")]
+
+        display_non_blocking_message(frame, "Global", position=position, font=FONT_NORMAL)
+
+        position_gap = 50
+
+        for prop in properties:
+            if prop[0] == "-":
+                position_gap += 30
+                continue
+
+            display_non_blocking_message(frame,
+                                         f"{self.data.get(prop[1], 0)} {prop[0]}",
+                                         position=(position[0], position[1] + position_gap),
+                                         font=FONT_XS,
+                                         font_color=(255, 0, 0))
+
+            position_gap += 30
 
     # https://stackabuse.com/reading-and-writing-json-to-a-file-in-python/
     def read_stats(self):

@@ -50,6 +50,8 @@ class ApplicationHandler:
         video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         last_gesture = None
 
+        self.statistics_handler.show_stats(video, pseudo)
+
         try:
             while True:
                 success, frame = video.read(0)  # Capture video frame by frame
