@@ -3,7 +3,7 @@ import random
 import cv2
 
 from etc.constants import FEUILLE, FEUILLE_THRESHOLD, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN, \
-    CISEAUX_THRESHOLD, FONT_SMALL
+    CISEAUX_THRESHOLD, FONT_SMALL, FONT_NORMAL
 from src.CustomExceptions import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.StatisticsHandler import StatisticsHandler
@@ -100,8 +100,7 @@ class GameHandler:
             success, frame = self.video.read(0)
 
             if not success:
-                print("Erreur lecture vidéo pendant l'acquisition de la posture")
-                break
+                raise RuntimeError("Erreur lecture vidéo pendant l'acquisition de la posture")
 
             frame = cv2.flip(frame, 1)
 
@@ -198,13 +197,13 @@ class GameHandler:
                 display_blocking_message_center(self.video,
                                                 f"Bravo ! Tu remportes le round ({posture_player} > {posture_computer})",
                                                 25,
-                                                font=FONT_SMALL)
+                                                font=FONT_NORMAL)
                 player_rounds_won = player_rounds_won + 1
             elif winner == COMPUTER_WIN:
                 display_blocking_message_center(self.video,
                                                 f"Dommage, l'ordinateur remporte le round ({posture_computer} > {posture_player})",
                                                 25,
-                                                font=FONT_SMALL)
+                                                font=FONT_NORMAL)
                 computer_rounds_won = computer_rounds_won + 1
             else:
                 display_blocking_message_center(self.video, f"Match nul ! Aucun gagnant ce round", 25)

@@ -1,11 +1,11 @@
 import cv2
 
-from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD, FONT, FONT_NORMAL
+from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD, FONT, FONT_LARGE
 from src.CustomExceptions import GameInterruptedException
 from src.Landmarks import Landmarks
 
 
-def display_non_blocking_message(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0),
+def display_non_blocking_message(frame, message, font=FONT_LARGE, font_color=(0, 0, 0),
                                  position=(0, 0)):
     cv2.putText(
         frame,  # numpy array on which text is written
@@ -18,7 +18,7 @@ def display_non_blocking_message(frame, message, font=FONT_NORMAL, font_color=(0
     )
 
 
-def display_blocking_message_center(video, message, number_of_frames, font=FONT_NORMAL,
+def display_blocking_message_center(video, message, number_of_frames, font=FONT_LARGE,
                                     font_color=(255, 255, 255, 255)):
     number_of_frames_shown = 0
 
@@ -49,7 +49,7 @@ def display_blocking_message_center(video, message, number_of_frames, font=FONT_
             raise GameInterruptedException
 
 
-def display_non_blocking_message_top_left(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0)):
+def display_non_blocking_message_top_left(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
     textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
     display_non_blocking_message(frame,
                                  message,
@@ -58,7 +58,7 @@ def display_non_blocking_message_top_left(frame, message, font=FONT_NORMAL, font
                                  font_color=font_color)
 
 
-def display_non_blocking_message_bottom_left(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0)):
+def display_non_blocking_message_bottom_left(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
     textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
     display_non_blocking_message(frame,
                                  message,
@@ -67,7 +67,7 @@ def display_non_blocking_message_bottom_left(frame, message, font=FONT_NORMAL, f
                                  font_color=font_color)
 
 
-def display_non_blocking_message_top_center(frame, message, font=FONT_NORMAL, font_color=(0, 0, 0)):
+def display_non_blocking_message_top_center(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
     textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
     display_non_blocking_message(frame,
                                  message,
