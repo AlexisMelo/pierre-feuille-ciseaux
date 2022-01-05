@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import cv2
 
@@ -35,10 +36,9 @@ class StatisticsHandler:
         self.data = self.read_stats()
 
     def show_stats(self, video, pseudo):
-        number_of_frames_shown = 0
-        number_of_frames = 100
+        timeout = time.time() + 10 #affichage pendant 10 secondes
 
-        while number_of_frames_shown < number_of_frames:
+        while time.time() < timeout:
 
             success, frame = video.read(0)
 
@@ -54,8 +54,6 @@ class StatisticsHandler:
             self.display_globals(frame, (500, 200))
 
             cv2.imshow(FRAME_NAME, frame)
-
-            number_of_frames_shown = number_of_frames_shown + 1
 
             key = cv2.pollKey() & 0xFF
             if key == ord("q"):

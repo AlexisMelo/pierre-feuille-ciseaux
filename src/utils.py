@@ -30,8 +30,7 @@ def display_blocking_message_center(video, message, seconds, font=FONT_LARGE,
         success, frame = video.read(0)
 
         if not success:
-            print("Erreur lecture vidéo pendant affichage message")
-            return
+            raise RuntimeError("Erreur lecture vidéo pendant affichage message")
 
         frame = cv2.flip(frame, 1)
 
