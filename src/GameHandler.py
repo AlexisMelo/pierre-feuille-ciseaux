@@ -167,14 +167,17 @@ class GameHandler:
         if not landmarks.is_not_none():
             return None
 
+        index_up = landmarks.get_distance_between(0, 8) > landmarks.get_distance_between(0, 6)
+        middle_up = landmarks.get_distance_between(0, 12) > landmarks.get_distance_between(0, 10)
+        ring_up = landmarks.get_distance_between(0, 16) > landmarks.get_distance_between(0, 14)
+        pinky_up = landmarks.get_distance_between(0, 20) > landmarks.get_distance_between(0, 18)
+
         # The posture is a CISEAUX if the space between keypoint 8 and 12 
         # is wider than the space between 5 and 9
         # and if ring and pinky fingers aren't stretched
         distance_top_fingers = landmarks.get_distance_between(8, 12)
         distance_bottom_fingers = landmarks.get_distance_between(5, 9)
-        ring_down = landmarks.get_distance_between(0, 16) < landmarks.get_distance_between(0, 14)
-        pinky_down = landmarks.get_distance_between(0, 20) < landmarks.get_distance_between(0, 18)
-        is_ciseaux = ring_down and pinky_down and distance_top_fingers > CISEAUX_THRESHOLD * distance_bottom_fingers
+        is_ciseaux = not ring_up and not pinky_up and index_up and middle_up and distance_top_fingers > CISEAUX_THRESHOLD * distance_bottom_fingers
         if (is_ciseaux):
             return CISEAUX
 
@@ -185,9 +188,10 @@ class GameHandler:
             return PIERRE
 
         # The posture is a FEUILLE if the distance between keypoint 6 and 19 is close to 5 and 17
-        distance_stuck_fingers1 = landmarks.get_distance_between(6, 19)
+        distance_stuck_fingers1 = landmarks.get_distance_between(7, 20)
         distance_stuck_fingers2 = landmarks.get_distance_between(5, 17)
-        is_feuille = distance_stuck_fingers1 - distance_stuck_fingers2 < FEUILLE_THRESHOLD
+        finger_stuck = distance_stuck_fingers1 - distance_stuck_fingers2 < FEUILLE_THRESHOLD
+        is_feuille = finger_stuck and index_up and middle_up and ring_up and pinky_up
         if is_feuille:
             return FEUILLE
 
