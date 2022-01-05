@@ -90,7 +90,14 @@ class GameHandler:
         if not landmarks.is_not_none():
             return None
 
-        thumb_up = are_aligned(landmarks.get_keypoint_xy(1), landmarks.get_keypoint_xy(2), landmarks.get_keypoint_xy(3))
+        # Determine if it's the palm or the back that is facing the camera
+        # in order to choose the condition determining if the thumb is stretched or not
+        palm_facing_camera = landmarks.get_keypoint_x(5) < landmarks.get_keypoint_x(17)
+        if palm_facing_camera:
+            thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
+        else:
+            thumb_up = landmarks.get_keypoint_x(4) > landmarks.get_keypoint_x(2)
+
         index_up = landmarks.get_distance_between(0, 8) > landmarks.get_distance_between(0, 6)
         middle_up = landmarks.get_distance_between(0, 12) > landmarks.get_distance_between(0, 10)
         ring_up = landmarks.get_distance_between(0, 16) > landmarks.get_distance_between(0, 14)
@@ -160,27 +167,32 @@ class GameHandler:
         if not landmarks.is_not_none():
             return None
 
+        index_up = landmarks.get_distance_between(0, 8) > landmarks.get_distance_between(0, 6)
+        middle_up = landmarks.get_distance_between(0, 12) > landmarks.get_distance_between(0, 10)
+        ring_up = landmarks.get_distance_between(0, 16) > landmarks.get_distance_between(0, 14)
+        pinky_up = landmarks.get_distance_between(0, 20) > landmarks.get_distance_between(0, 18)
+
         # The posture is a CISEAUX if the space between keypoint 8 and 12 
         # is wider than the space between 5 and 9
         # and if ring and pinky fingers aren't stretched
         distance_top_fingers = landmarks.get_distance_between(8, 12)
         distance_bottom_fingers = landmarks.get_distance_between(5, 9)
-        ring_down = landmarks.get_distance_between(0, 16) < landmarks.get_distance_between(0, 14)
-        pinky_down = landmarks.get_distance_between(0, 20) < landmarks.get_distance_between(0, 18)
-        is_ciseaux = ring_down and pinky_down and distance_top_fingers > CISEAUX_THRESHOLD * distance_bottom_fingers
+        is_ciseaux = not ring_up and not pinky_up and index_up and middle_up and distance_top_fingers > CISEAUX_THRESHOLD * distance_bottom_fingers
         if (is_ciseaux):
             return CISEAUX
 
         # The posture is a PIERRE if is all fingers aren't stretched
-        # (i.e. if this were the posture to determine the nb of rounds, the result would be 0)
-        is_pierre = self.recognize_number_of_rounds_posture(landmarks) == 0
+        # (thumb isn't stretched if keypoint 4 is "close" to 10)
+        thumb_close_to_middle = landmarks.get_distance_between(4, 10) < landmarks.get_distance_between(1,2)
+        is_pierre = not index_up and not middle_up and not ring_up and not pinky_up and thumb_close_to_middle
         if is_pierre:
             return PIERRE
 
         # The posture is a FEUILLE if the distance between keypoint 6 and 19 is close to 5 and 17
-        distance_stuck_fingers1 = landmarks.get_distance_between(6, 19)
+        distance_stuck_fingers1 = landmarks.get_distance_between(7, 20)
         distance_stuck_fingers2 = landmarks.get_distance_between(5, 17)
-        is_feuille = distance_stuck_fingers1 - distance_stuck_fingers2 < FEUILLE_THRESHOLD
+        finger_stuck = distance_stuck_fingers1 < FEUILLE_THRESHOLD * distance_stuck_fingers2 
+        is_feuille = finger_stuck and index_up and middle_up and ring_up and pinky_up
         if is_feuille:
             return FEUILLE
 
