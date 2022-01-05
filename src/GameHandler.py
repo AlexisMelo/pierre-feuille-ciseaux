@@ -90,7 +90,14 @@ class GameHandler:
         if not landmarks.is_not_none():
             return None
 
-        thumb_up = are_aligned(landmarks.get_keypoint_xy(1), landmarks.get_keypoint_xy(2), landmarks.get_keypoint_xy(3))
+        # Determine if it's the palm or the back that is facing the camera
+        # in order to choose the condition determining if the thumb is stretched or not
+        palm_facing_camera = landmarks.get_keypoint_x(5) < landmarks.get_keypoint_x(17)
+        if palm_facing_camera:
+            thumb_up = landmarks.get_keypoint_x(4) < landmarks.get_keypoint_x(2)
+        else:
+            thumb_up = landmarks.get_keypoint_x(4) > landmarks.get_keypoint_x(2)
+
         index_up = landmarks.get_distance_between(0, 8) > landmarks.get_distance_between(0, 6)
         middle_up = landmarks.get_distance_between(0, 12) > landmarks.get_distance_between(0, 10)
         ring_up = landmarks.get_distance_between(0, 16) > landmarks.get_distance_between(0, 14)
