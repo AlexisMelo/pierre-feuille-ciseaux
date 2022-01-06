@@ -1,14 +1,16 @@
 import time
 
 import cv2
+from numpy import floor
 
-from etc.constants import FRAME_NAME, ALIGNMENT_THRESHOLD, FONT, FONT_LARGE
+from etc.constants import FRAME_NAME, FONT, FONT_LARGE, CAMERA_FONT_SIZE_MULTIPLIER, CAMERA_FONT_STROKE_MULTIPLIER
 from src.CustomExceptions import GameInterruptedException
 from src.Landmarks import Landmarks
 
 
 def display_non_blocking_message(frame, message, font=FONT_LARGE, font_color=(0, 0, 0),
                                  position=(0, 0)):
+    #font = _compute_optimal_font(frame.shape[1])
     cv2.putText(
         frame,  # numpy array on which text is written
         message,  # text
@@ -111,3 +113,9 @@ def get_number_stretched_fingers(landmarks: Landmarks):
     ring_up = landmarks.get_distance_between(0, 16) > landmarks.get_distance_between(0, 14)
     pinky_up = landmarks.get_distance_between(0, 20) > landmarks.get_distance_between(0, 18)
     return int(thumb_up) + int(index_up) + int(middle_up) + int(ring_up) + int(pinky_up)
+
+def _compute_optimal_font(frame_width):
+    font_size = frame_width * CAMERA_FONT_SIZE_MULTIPLIER  
+    font_stroke = int(floor(CAMERA_FONT_STROKE_MULTIPLIER[0]*font_size + CAMERA_FONT_STROKE_MULTIPLIER[1]))
+    font = (font_size, font_stroke)
+    return font
