@@ -36,6 +36,7 @@ def display_blocking_message_center(video, message, seconds, font=FONT_LARGE,
 
         frame = cv2.flip(frame, 1)
 
+        font = _compute_optimal_font(frame.shape[1])
         textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
         display_non_blocking_message(frame,
                                      message,
@@ -52,6 +53,7 @@ def display_blocking_message_center(video, message, seconds, font=FONT_LARGE,
 
 
 def display_non_blocking_message_top_left(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
+    font = _compute_optimal_font(frame.shape[1])
     textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
     display_non_blocking_message(frame,
                                  message,
@@ -61,6 +63,7 @@ def display_non_blocking_message_top_left(frame, message, font=FONT_LARGE, font_
 
 
 def display_non_blocking_message_bottom_left(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
+    font = _compute_optimal_font(frame.shape[1])
     textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
     display_non_blocking_message(frame,
                                  message,
@@ -70,6 +73,7 @@ def display_non_blocking_message_bottom_left(frame, message, font=FONT_LARGE, fo
 
 
 def display_non_blocking_message_top_center(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
+    font = _compute_optimal_font(frame.shape[1])
     textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
     display_non_blocking_message(frame,
                                  message,
