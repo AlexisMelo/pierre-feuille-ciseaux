@@ -4,7 +4,7 @@ import time
 
 import cv2
 
-from etc.constants import FRAME_NAME, FONT_SMALL, FONT_XS, FONT_LARGE, FONT_NORMAL, BLUE
+from etc.constants import FRAME_NAME, FONT_SMALL, FONT_XS, FONT_LARGE, FONT_NORMAL, BLUE, STATS
 from src.CustomExceptions import GameInterruptedException
 from src.utils import display_non_blocking_message_top_center, display_non_blocking_message
 
@@ -36,7 +36,7 @@ class StatisticsHandler:
         self.data = self.read_stats()
 
     def show_stats(self, video, pseudo):
-        timeout = time.time() + 10 #affichage pendant 10 secondes
+        timeout = time.time() + STATS #affichage pendant 10 secondes
 
         while time.time() < timeout:
 
@@ -47,7 +47,7 @@ class StatisticsHandler:
 
             frame = cv2.flip(frame, 1)
 
-            display_non_blocking_message_top_center(frame, "Statistics")
+            display_non_blocking_message_top_center(frame, "Statistiques")
 
             self.display_stats_player(frame, pseudo, (25, 200))
             self.display_stats_player(frame, "computer", (1050, 200))

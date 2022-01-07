@@ -5,7 +5,7 @@ import cv2
 
 from etc.constants import FEUILLE, FEUILLE_THRESHOLD, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN, \
     CISEAUX_THRESHOLD, FONT_SMALL, FONT_NORMAL, FONT_XS, NUMBER_OF_ROUNDS_SECONDS_TO_VALIDATE, \
-    USER_POSTURE_SECONDS_TO_VALIDATE, BLUE, GREEN, RED, ACTUAL_ROUND, PLAYER_GESTURE, COMPUTER_POSTURE
+    USER_POSTURE_SECONDS_TO_VALIDATE, BLUE, GREEN, RED, ACTUAL_ROUND, PLAYER_GESTURE, COMPUTER_POSTURE, FINAL_RESULTS
 from src.CustomExceptions import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.StatisticsHandler import StatisticsHandler
@@ -244,26 +244,22 @@ class GameHandler:
             if key == ord("q"):
                 raise GameInterruptedException
 
+        number_of_rounds_even = self.number_of_rounds - self.player_rounds_won - self.computer_rounds_won
+
         if self.player_rounds_won > self.computer_rounds_won:
-            display_blocking_message_center(self.video,
-                                            f"Victoire {self.player_rounds_won} rounds a {self.computer_rounds_won} !",
-                                            seconds=4,
-                                            font_color=GREEN)
+            subtitle = f"""{self.player_rounds_won} round{'s' if self.player_rounds_won > 1 else ''} a {self.computer_rounds_won} {f', {number_of_rounds_even} nul{"s" if number_of_rounds_even > 1 else ""}' if number_of_rounds_even > 0 else ""}"""
+            self.display_final_results("Victoire !", subtitle, color=GREEN)
             self.statistics_handler.increment_stats_player(self.player, "games_won")
             self.statistics_handler.increment_stats_player("computer", "games_lost")
 
         elif self.computer_rounds_won > self.player_rounds_won:
-            display_blocking_message_center(self.video,
-                                            f"Defaite {self.player_rounds_won} rounds a {self.computer_rounds_won} ...",
-                                            seconds=4,
-                                            font_color=RED)
+            subtitle = f"""{self.player_rounds_won} round{'s' if self.player_rounds_won > 1 else ''} a {self.computer_rounds_won} {f', {number_of_rounds_even} nul{"s" if number_of_rounds_even > 1 else ""}' if number_of_rounds_even > 0 else ""} """
+            self.display_final_results("Defaite...", subtitle, color=RED)
             self.statistics_handler.increment_stats_player("computer", "games_won")
             self.statistics_handler.increment_stats_player(self.player, "games_lost")
+
         else:
-            display_blocking_message_center(self.video,
-                                            f"Egalite ! Aucun gagnant cette fois-ci...",
-                                            seconds=4,
-                                            font_color=BLUE)
+            self.display_final_results("Egalite", "Aucun gagnant cette fois-ci...", color=BLUE)
             self.statistics_handler.increment_global_stats("games_even")
             self.statistics_handler.increment_stats_player(self.player, "games_even")
             self.statistics_handler.increment_stats_player("computer", "games_even")
@@ -272,6 +268,38 @@ class GameHandler:
         self.log_rounds_to_stats("computer")
         self.statistics_handler.write_stats()
 
+    def display_final_results(self, title, subtitle, color):
+        timeout = time.time() + FINAL_RESULTS
+        y_offset_title = -100
+        y_offset_subtitle = -40
+
+        if self.number_of_rounds > 4:
+            y_offset_title -= 50
+            y_offset_subtitle -= 50
+
+        while time.time() < timeout:
+
+            success, frame = self.video.read(0)
+
+            if not success:
+                raise RuntimeError("Erreur lecture vidéo pendant affiche posture joueur")
+
+            frame = cv2.flip(frame, 1)
+
+            display_non_blocking_message_center(frame, title, y_offset=y_offset_title, font_color=color)
+
+            display_non_blocking_message_center(frame, subtitle, font=FONT_NORMAL, y_offset=y_offset_subtitle)
+
+            self.display_rounds_live_result(frame, x_offset=frame.shape[1] // 2 - 150)
+
+            cv2.imshow(FRAME_NAME, frame)
+
+            key = cv2.pollKey() & 0xFF
+            if key == ord("d"):
+                self.draw = not self.draw
+            elif key == ord("q"):
+                raise GameInterruptedException
+
     def log_rounds_to_stats(self, player):
         """
             Add this game statistics to the statistics module
@@ -279,7 +307,7 @@ class GameHandler:
         self.statistics_handler.increment_stats_player(player, "rounds_won", self.player_rounds_won)
         self.statistics_handler.increment_stats_player(player, "rounds_lost", self.computer_rounds_won)
         self.statistics_handler.increment_stats_player(player, "rounds_even",
-                                                       len(self.rounds_played) - self.player_rounds_won - self.computer_rounds_won)
+                                                       self.number_of_rounds - self.player_rounds_won - self.computer_rounds_won)
 
     def get_round_postures(self):
         """
@@ -347,7 +375,7 @@ class GameHandler:
 
             frame = cv2.flip(frame, 1)
 
-            #Rappel coup joueur
+            # Rappel coup joueur
 
             display_non_blocking_message_top_center(frame, f"{self.player}", font=FONT_SMALL)
             img_path_player = f"img/{posture_player}.png"
@@ -355,7 +383,7 @@ class GameHandler:
             frame[150 - img_size_player: 150,
             frame.shape[1] // 2 - 25:frame.shape[1] // 2 - 25 + img_size_player] = image_player
 
-            #Coup ordinateur
+            # Coup ordinateur
 
             display_non_blocking_message_center(frame, f"L'ordinateur", y_offset=-100)
             display_non_blocking_message_center(frame, f"joue", font=FONT_SMALL, y_offset=-75)
@@ -433,22 +461,22 @@ class GameHandler:
 
         return PIERRE
 
-    def display_rounds_live_result(self, frame):
+    def display_rounds_live_result(self, frame, x_offset=0):
         base_y = frame.shape[0] - 25
         img_size = 50
 
         for index, round_stats in enumerate(self.rounds_played):
 
-            display_non_blocking_message(frame, f"{index + 1}", position=(148, base_y - 35), font=FONT_XS)
+            display_non_blocking_message(frame, f"{index + 1}", position=(148 + x_offset, base_y - 35), font=FONT_XS)
 
             if round_stats["posture_player"] == round_stats["posture_computer"]:
-                display_non_blocking_message(frame, "Nul", position=(130, base_y - 5), font=FONT_SMALL,
+                display_non_blocking_message(frame, "Nul", position=(130 + x_offset, base_y - 5), font=FONT_SMALL,
                                              font_color=BLUE)
             elif self.get_better_posture(round_stats["posture_computer"]) == round_stats["posture_player"]:
-                display_non_blocking_message(frame, "Victoire", position=(90, base_y - 5), font=FONT_SMALL,
+                display_non_blocking_message(frame, "Victoire", position=(90 + x_offset, base_y - 5), font=FONT_SMALL,
                                              font_color=GREEN)
             else:
-                display_non_blocking_message(frame, "Defaite", position=(95, base_y - 5), font=FONT_SMALL,
+                display_non_blocking_message(frame, "Defaite", position=(95 + x_offset, base_y - 5), font=FONT_SMALL,
                                              font_color=RED)
 
             img_path_player = f"img/{round_stats['posture_player']}.png"
@@ -457,8 +485,8 @@ class GameHandler:
             img_path_computer = f"img/{round_stats['posture_computer']}.png"
             image_computer = cv2.resize(cv2.imread(img_path_computer), (img_size, img_size))
 
-            frame[base_y - img_size:base_y, 25:25 + img_size] = image_player
-            frame[base_y - img_size:base_y, 225:225 + img_size] = image_computer
+            frame[base_y - img_size:base_y, x_offset + 25:x_offset + 25 + img_size] = image_player
+            frame[base_y - img_size:base_y, x_offset + 225:x_offset + 225 + img_size] = image_computer
 
             base_y -= 85
 
