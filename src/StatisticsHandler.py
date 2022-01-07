@@ -4,7 +4,7 @@ import time
 
 import cv2
 
-from etc.constants import FRAME_NAME, FONT_SMALL, FONT_XS, FONT_LARGE, FONT_NORMAL
+from etc.constants import FRAME_NAME, FONT_SMALL, FONT_XS, FONT_LARGE, FONT_NORMAL, BLUE
 from src.CustomExceptions import GameInterruptedException
 from src.utils import display_non_blocking_message_top_center, display_non_blocking_message
 
@@ -87,7 +87,7 @@ class StatisticsHandler:
                                          f"{self.data['players'][pseudo].get(prop[1], 0)} {prop[0]}",
                                          position=(position[0], position[1] + position_gap),
                                          font=FONT_XS,
-                                         font_color=(255, 0, 0))
+                                         font_color=BLUE)
             position_gap += 30
 
     def display_globals(self, frame, position):
@@ -111,7 +111,7 @@ class StatisticsHandler:
                                          f"{self.data.get(prop[1], 0)} {prop[0]}",
                                          position=(position[0], position[1] + position_gap),
                                          font=FONT_XS,
-                                         font_color=(255, 0, 0))
+                                         font_color=BLUE)
 
             position_gap += 30
 

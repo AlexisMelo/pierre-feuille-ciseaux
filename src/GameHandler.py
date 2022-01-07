@@ -4,11 +4,12 @@ import time
 import cv2
 
 from etc.constants import FEUILLE, FEUILLE_THRESHOLD, PIERRE, CISEAUX, FRAME_NAME, COMPUTER_WIN, PLAYER_WIN, \
-    CISEAUX_THRESHOLD, FONT_SMALL, FONT_NORMAL, FONT_XS
+    CISEAUX_THRESHOLD, FONT_SMALL, FONT_NORMAL, FONT_XS, NUMBER_OF_ROUNDS_SECONDS_TO_VALIDATE, \
+    USER_POSTURE_SECONDS_TO_VALIDATE, BLUE, GREEN, RED, ACTUAL_ROUND, PLAYER_GESTURE, COMPUTER_POSTURE
 from src.CustomExceptions import GameInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.StatisticsHandler import StatisticsHandler
-from src.utils import display_blocking_message_center, display_non_blocking_message_top_left, \
+from src.utils import display_blocking_message_center, display_non_blocking_message_top_center, \
     display_non_blocking_message_bottom_center, get_number_stretched_fingers, display_non_blocking_message, \
     display_non_blocking_message_center
 
@@ -22,6 +23,7 @@ class GameHandler:
         self.statistics_handler = statistics_handler
         self.player_rounds_won = 0
         self.computer_rounds_won = 0
+        self.number_of_rounds = 0
         self.rounds_played = []
 
     def add_round_played(self, winner, posture_player, posture_computer):
@@ -36,10 +38,11 @@ class GameHandler:
             Initialize the game by getting the number of rounds needed, printing a message and launching the game
         """
         self.statistics_handler.increment_global_stats("games_played")
-        number_of_rounds = self.get_number_of_rounds()
-        display_blocking_message_center(self.video, f"C'est parti pour {number_of_rounds} rounds !", seconds=3,
-                                        font_color=(255, 0, 0))
-        self.start_game(number_of_rounds)
+        self.number_of_rounds = self.get_number_of_rounds()
+        display_blocking_message_center(self.video,
+                                        f"C'est parti pour {self.number_of_rounds} round{'s' if self.number_of_rounds > 1 else ''} !",
+                                        seconds=3, font_color=BLUE)
+        self.start_game()
 
     def get_number_of_rounds(self):
         """"
@@ -48,9 +51,9 @@ class GameHandler:
         """
         number_of_rounds = 0
         last_gesture = None  # mémoire pour dernière gesture reconnue
-        last_gesture_sum = 0  # Nombre de fois qu'on a eu la même gesture d'affilé
-        number_of_frames_to_validate = 20
-        while last_gesture_sum < number_of_frames_to_validate or not number_of_rounds or number_of_rounds < 1:
+        last_gesture_timestamp = time.time()
+
+        while time.time() - last_gesture_timestamp < NUMBER_OF_ROUNDS_SECONDS_TO_VALIDATE or not number_of_rounds or number_of_rounds < 1:
             success, frame = self.video.read(0)
 
             if not success:
@@ -63,18 +66,20 @@ class GameHandler:
             frame, landmarks = get_landmarks(frame, self.draw)
             number_of_rounds = self.recognize_number_of_rounds_posture(landmarks)
 
-            if number_of_rounds == last_gesture:
-                last_gesture_sum += 1
-            else:
-                last_gesture_sum = 0
+            if number_of_rounds != last_gesture:
+                last_gesture_timestamp = time.time()
 
             if number_of_rounds:
-                display_non_blocking_message_bottom_center(frame,
-                                                           f"{last_gesture_sum} / {number_of_frames_to_validate}")
+                info = f"{'%.2f' % (time.time() - last_gesture_timestamp)}s / {NUMBER_OF_ROUNDS_SECONDS_TO_VALIDATE}s"
+                display_non_blocking_message_bottom_center(frame, info)
 
             last_gesture = number_of_rounds
 
-            display_non_blocking_message_top_left(frame, f"Nombre de rounds : {number_of_rounds}")
+            if not number_of_rounds:
+                display_non_blocking_message_top_center(frame, f"Combien de rounds ?")
+            else:
+                display_non_blocking_message_top_center(frame,
+                                                        f"{number_of_rounds} round{'s' if number_of_rounds > 1 else ''}")
 
             cv2.imshow(FRAME_NAME, frame)
 
@@ -116,10 +121,9 @@ class GameHandler:
         """
         last_gesture = None  # mémoire pour dernière gesture reconnue
         posture_player = None
-        last_gesture_sum = 0  # Nombre de fois qu'on a eu la même gesture d'affilé
-        number_of_frames_to_validate = 10
+        last_gesture_timestamp = time.time()
 
-        while last_gesture_sum < number_of_frames_to_validate:
+        while time.time() - last_gesture_timestamp < USER_POSTURE_SECONDS_TO_VALIDATE:
 
             success, frame = self.video.read(0)
 
@@ -136,18 +140,19 @@ class GameHandler:
 
             posture_player = self.recognize_user_game_posture(landmarks)
 
-            if posture_player == last_gesture and posture_player is not None:
-                last_gesture_sum += 1
-            else:
-                last_gesture_sum = 0
+            if posture_player != last_gesture or posture_player is None:
+                last_gesture_timestamp = time.time()
 
             if posture_player is not None:
-                display_non_blocking_message_bottom_center(frame,
-                                                           f"{last_gesture_sum} / {number_of_frames_to_validate}")
+                info = f"{'%.2f' % (time.time() - last_gesture_timestamp)}s / {USER_POSTURE_SECONDS_TO_VALIDATE}s"
+                display_non_blocking_message_bottom_center(frame, info)
+                display_non_blocking_message_top_center(frame, f"Vous jouez", font=FONT_NORMAL)
+                display_non_blocking_message_top_center(frame, f"{posture_player.capitalize()}", y_offset=75)
+
+            else:
+                display_non_blocking_message_top_center(frame, f"Pierre, Feuille, Ciseaux ?")
 
             last_gesture = posture_player
-
-            display_non_blocking_message_top_left(frame, f"Posture detectee : {posture_player}")
 
             cv2.imshow(FRAME_NAME, frame)
 
@@ -209,7 +214,7 @@ class GameHandler:
         # Return None if no game posture has been recognized
         return None
 
-    def start_game(self, number_of_rounds):
+    def start_game(self):
         """
             Loops for number_of_rounds rounds, each round consists in the player choosing a posture, the computer then
             choosing one, and comparing the two to display the winner
@@ -218,9 +223,9 @@ class GameHandler:
         self.player_rounds_won = 0
         self.computer_rounds_won = 0
 
-        while len(self.rounds_played) < number_of_rounds:
+        while len(self.rounds_played) < self.number_of_rounds:
 
-            posture_player, posture_computer = self.get_round_postures(number_of_rounds)
+            posture_player, posture_computer = self.get_round_postures()
 
             winner = self.get_winner(posture_player, posture_computer)
 
@@ -243,7 +248,7 @@ class GameHandler:
             display_blocking_message_center(self.video,
                                             f"Victoire {self.player_rounds_won} rounds a {self.computer_rounds_won} !",
                                             seconds=4,
-                                            font_color=(0, 255, 0))
+                                            font_color=GREEN)
             self.statistics_handler.increment_stats_player(self.player, "games_won")
             self.statistics_handler.increment_stats_player("computer", "games_lost")
 
@@ -251,14 +256,14 @@ class GameHandler:
             display_blocking_message_center(self.video,
                                             f"Defaite {self.player_rounds_won} rounds a {self.computer_rounds_won} ...",
                                             seconds=4,
-                                            font_color=(0, 0, 255))
+                                            font_color=RED)
             self.statistics_handler.increment_stats_player("computer", "games_won")
             self.statistics_handler.increment_stats_player(self.player, "games_lost")
         else:
             display_blocking_message_center(self.video,
                                             f"Egalite ! Aucun gagnant cette fois-ci...",
                                             seconds=4,
-                                            font_color=(255, 0, 0))
+                                            font_color=BLUE)
             self.statistics_handler.increment_global_stats("games_even")
             self.statistics_handler.increment_stats_player(self.player, "games_even")
             self.statistics_handler.increment_stats_player("computer", "games_even")
@@ -276,26 +281,125 @@ class GameHandler:
         self.statistics_handler.increment_stats_player(player, "rounds_even",
                                                        len(self.rounds_played) - self.player_rounds_won - self.computer_rounds_won)
 
-    def get_round_postures(self, number_of_rounds):
+    def get_round_postures(self):
         """
             Asks for the posture player and then chooses one for the computer, while displaying what happened every time
         """
-        display_blocking_message_center(self.video, f"Round {len(self.rounds_played) + 1} / {number_of_rounds}",
-                                        seconds=2,
-                                        font_color=(255, 0, 0))
+        self.display_round_number()
 
         posture_player = self.get_user_posture()
 
-        display_blocking_message_center(self.video, f"Acquisition humain : {posture_player}", seconds=2)
+        self.display_player_gesture(posture_player)
 
         posture_computer = self.get_computer_game_posture()
 
-        display_blocking_message_center(self.video, f"Posture ordi : {posture_computer}", seconds=2)
+        self.display_computer_posture(posture_player, posture_computer)
 
         self.statistics_handler.increment_stats_player("computer", posture_computer)
         self.statistics_handler.increment_stats_player(self.player, posture_player)
 
         return posture_player, posture_computer
+
+    def display_player_gesture(self, posture):
+        timeout = time.time() + PLAYER_GESTURE
+        img_size = 100
+
+        while time.time() < timeout:
+
+            success, frame = self.video.read(0)
+
+            if not success:
+                raise RuntimeError("Erreur lecture vidéo pendant affiche posture joueur")
+
+            frame = cv2.flip(frame, 1)
+
+            display_non_blocking_message_center(frame, f"{self.player}", y_offset=-100)
+            display_non_blocking_message_center(frame, f"joue", font=FONT_SMALL, y_offset=-75)
+            display_non_blocking_message_center(frame, f"{posture.capitalize()}")
+
+            img_path_player = f"img/{posture}.png"
+            image_player = cv2.resize(cv2.imread(img_path_player), (img_size, img_size))
+
+            frame[frame.shape[0] // 2 + 150 - img_size:frame.shape[0] // 2 + 150,
+            frame.shape[1] // 2 - 50:frame.shape[1] // 2 - 50 + img_size] = image_player
+
+            self.display_rounds_live_result(frame)
+
+            cv2.imshow(FRAME_NAME, frame)
+
+            key = cv2.pollKey() & 0xFF
+            if key == ord("d"):
+                self.draw = not self.draw
+            elif key == ord("q"):
+                raise GameInterruptedException
+
+    def display_computer_posture(self, posture_player, posture_computer):
+        timeout = time.time() + COMPUTER_POSTURE
+        img_size_computer = 100
+        img_size_player = 50
+
+        while time.time() < timeout:
+
+            success, frame = self.video.read(0)
+
+            if not success:
+                raise RuntimeError("Erreur lecture vidéo pendant affiche posture joueur")
+
+            frame = cv2.flip(frame, 1)
+
+            #Rappel coup joueur
+
+            display_non_blocking_message_top_center(frame, f"{self.player}", font=FONT_SMALL)
+            img_path_player = f"img/{posture_player}.png"
+            image_player = cv2.resize(cv2.imread(img_path_player), (img_size_player, img_size_player))
+            frame[150 - img_size_player: 150,
+            frame.shape[1] // 2 - 25:frame.shape[1] // 2 - 25 + img_size_player] = image_player
+
+            #Coup ordinateur
+
+            display_non_blocking_message_center(frame, f"L'ordinateur", y_offset=-100)
+            display_non_blocking_message_center(frame, f"joue", font=FONT_SMALL, y_offset=-75)
+            display_non_blocking_message_center(frame, f"{posture_computer.capitalize()}")
+
+            img_path_computer = f"img/{posture_computer}.png"
+            image_computer = cv2.resize(cv2.imread(img_path_computer), (img_size_computer, img_size_computer))
+
+            frame[frame.shape[0] // 2 + 150 - img_size_computer:frame.shape[0] // 2 + 150,
+            frame.shape[1] // 2 - 50:frame.shape[1] // 2 - 50 + img_size_computer] = image_computer
+
+            self.display_rounds_live_result(frame)
+
+            cv2.imshow(FRAME_NAME, frame)
+
+            key = cv2.pollKey() & 0xFF
+            if key == ord("d"):
+                self.draw = not self.draw
+            elif key == ord("q"):
+                raise GameInterruptedException
+
+    def display_round_number(self):
+        timeout = time.time() + ACTUAL_ROUND
+
+        while time.time() < timeout:
+
+            success, frame = self.video.read(0)
+
+            if not success:
+                raise RuntimeError("Erreur lecture vidéo pendant affichage du round")
+
+            frame = cv2.flip(frame, 1)
+
+            display_non_blocking_message_center(frame, f"Round {len(self.rounds_played) + 1} / {self.number_of_rounds}",
+                                                font_color=BLUE)
+            self.display_rounds_live_result(frame)
+
+            cv2.imshow(FRAME_NAME, frame)
+
+            key = cv2.pollKey() & 0xFF
+            if key == ord("d"):
+                self.draw = not self.draw
+            elif key == ord("q"):
+                raise GameInterruptedException
 
     def get_computer_game_posture(self):
         """
@@ -339,13 +443,13 @@ class GameHandler:
 
             if round_stats["posture_player"] == round_stats["posture_computer"]:
                 display_non_blocking_message(frame, "Nul", position=(130, base_y - 5), font=FONT_SMALL,
-                                             font_color=(255, 0, 0))
+                                             font_color=BLUE)
             elif self.get_better_posture(round_stats["posture_computer"]) == round_stats["posture_player"]:
                 display_non_blocking_message(frame, "Victoire", position=(90, base_y - 5), font=FONT_SMALL,
-                                             font_color=(0, 255, 0))
+                                             font_color=GREEN)
             else:
                 display_non_blocking_message(frame, "Defaite", position=(95, base_y - 5), font=FONT_SMALL,
-                                             font_color=(0, 0, 255))
+                                             font_color=RED)
 
             img_path_player = f"img/{round_stats['posture_player']}.png"
             image_player = cv2.resize(cv2.imread(img_path_player), (img_size, img_size))
@@ -373,14 +477,14 @@ class GameHandler:
             frame = cv2.flip(frame, 1)
 
             if winner == PLAYER_WIN:
-                display_non_blocking_message_center(frame, f"Bravo !", font_color=(0, 255, 0), y_offset=-20)
+                display_non_blocking_message_center(frame, f"Bravo !", font_color=GREEN, y_offset=-20)
                 display_non_blocking_message_center(frame, f"Tu remportes le round", y_offset=50, font=FONT_NORMAL)
                 display_non_blocking_message_center(frame,
                                                     f"({posture_player.capitalize()} > {posture_computer.capitalize()})",
                                                     y_offset=100, font=FONT_SMALL)
 
             elif winner == COMPUTER_WIN:
-                display_non_blocking_message_center(frame, f"Dommage", font_color=(0, 0, 255), y_offset=-20)
+                display_non_blocking_message_center(frame, f"Dommage", font_color=RED, y_offset=-20)
                 display_non_blocking_message_center(frame, f"L'ordinateur remporte le round", y_offset=50,
                                                     font=FONT_NORMAL)
                 display_non_blocking_message_center(frame,
@@ -388,7 +492,7 @@ class GameHandler:
                                                     y_offset=100, font=FONT_SMALL)
 
             else:
-                display_non_blocking_message_center(frame, f"Match nul", font_color=(255, 0, 0), y_offset=-20)
+                display_non_blocking_message_center(frame, f"Match nul", font_color=BLUE, y_offset=-20)
                 display_non_blocking_message_center(frame, f"Aucun gagnant ce round", y_offset=75, font=FONT_NORMAL)
 
             self.display_rounds_live_result(frame)

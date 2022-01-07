@@ -47,9 +47,9 @@ COMPUTER_WIN = "Computer"
 NB_MAX_ROUND = 5
 FRAME_NAME = "Pierre feuille ciseaux"
 
-################
+####################
 ###   MESSAGES   ###
-################
+####################
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 FONT_SIZE_LARGE = 2
@@ -67,3 +67,23 @@ FONT_SMALL = (FONT_SIZE_SMALL, FONT_STROKE_SMALL)
 FONT_SIZE_XS = 0.8
 FONT_STROKE_XS = 2
 FONT_XS = (FONT_SIZE_XS, FONT_STROKE_XS)
+
+####################
+###   TIMINGS    ###
+####################
+
+NUMBER_OF_ROUNDS_SECONDS_TO_VALIDATE = 3
+USER_POSTURE_SECONDS_TO_VALIDATE = 2
+
+ACTUAL_ROUND = 1.5 #1.5
+PLAYER_GESTURE = 2.5
+COMPUTER_POSTURE = 3
+
+####################
+###   COLORS    ###
+####################
+
+BLUE = (255, 0, 0)
+RED = (0, 0, 255)
+GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)

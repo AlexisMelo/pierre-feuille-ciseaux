@@ -1,12 +1,12 @@
 import cv2
 
-from etc.constants import LAUNCH_GAME, MEMORY_SIZE, STATISTICS, FRAME_NAME, CLOSE
+from etc.constants import LAUNCH_GAME, MEMORY_SIZE, STATISTICS, FRAME_NAME, CLOSE, RED, BLUE
 from src.GameHandler import GameHandler
 from src.CustomExceptions import GameInterruptedException, ApplicationInterruptedException
 from src.Landmarks import Landmarks, get_landmarks
 from src.Memory import Memory
 from src.StatisticsHandler import StatisticsHandler
-from src.utils import display_blocking_message_center, display_non_blocking_message_top_left, get_number_stretched_fingers
+from src.utils import display_blocking_message_center, display_non_blocking_message_top_center, get_number_stretched_fingers
 
 
 def _is_hand_at_bottom(landmarks: Landmarks):
@@ -68,7 +68,7 @@ class ApplicationHandler:
 
                 frame = cv2.flip(frame, 1)  # Flip the image horizontally for a selfie-view display
 
-                display_non_blocking_message_top_left(frame, "Effectuez un geste de debut de partie")
+                display_non_blocking_message_top_center(frame, "Effectuez un geste de debut de partie")
 
                 frame, landmarks = get_landmarks(frame, self.draw)
                 self.memory.add(landmarks)
@@ -78,15 +78,14 @@ class ApplicationHandler:
 
                 if gesture and last_gesture != gesture:
                     if gesture == LAUNCH_GAME:
-                        display_blocking_message_center(video, "Creation d'une nouvelle partie", seconds=3,
-                                                        font_color=(0, 0, 255))
+                        display_blocking_message_center(video, "Creation d'une nouvelle partie", seconds=3, font_color=BLUE)
                         game_handler = GameHandler(video, pseudo, self.statistics_handler)
                         game_handler.initialize_game()
                     elif gesture == STATISTICS:
-                        display_blocking_message_center(video, "Affichage des statistiques", seconds=3, font_color=(0, 0, 255))
+                        display_blocking_message_center(video, "Affichage des statistiques", seconds=3, font_color=BLUE)
                         self.statistics_handler.show_stats(video, pseudo)
                     elif gesture == CLOSE:
-                        display_blocking_message_center(video, "Au revoir !", seconds=1, font_color=(0, 0, 255))
+                        display_blocking_message_center(video, "Au revoir !", seconds=1, font_color=RED)
                         raise ApplicationInterruptedException
 
                 last_gesture = gesture
