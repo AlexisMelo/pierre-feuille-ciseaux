@@ -19,6 +19,11 @@ def display_non_blocking_message(frame, message, font=FONT_LARGE, font_color=(0,
         font[1],  # font stroke
     )
 
+def display_non_blocking_message_center(frame, message, font=FONT_LARGE, font_color=(0, 0, 0),
+                                 y_offset=0):
+    textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
+    position = ((frame.shape[1] - textsize[0]) // 2, (frame.shape[0] - textsize[1]) // 2 + y_offset)
+    display_non_blocking_message(frame, message, font, font_color, position)
 
 def display_blocking_message_center(video, message, seconds, font=FONT_LARGE,
                                     font_color=(255, 255, 255, 255)):
@@ -58,11 +63,11 @@ def display_non_blocking_message_top_left(frame, message, font=FONT_LARGE, font_
                                  font_color=font_color)
 
 
-def display_non_blocking_message_bottom_left(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
+def display_non_blocking_message_bottom_center(frame, message, font=FONT_LARGE, font_color=(0, 0, 0)):
     textsize = cv2.getTextSize(message, FONT, font[0], font[1])[0]
     display_non_blocking_message(frame,
                                  message,
-                                 position=(25, (frame.shape[0] - textsize[1]) - 25),
+                                 position=( (frame.shape[1] - textsize[0]) // 2, (frame.shape[0] - textsize[1]) - 25),
                                  font=font,
                                  font_color=font_color)
 
