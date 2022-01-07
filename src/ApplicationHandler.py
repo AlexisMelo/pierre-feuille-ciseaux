@@ -51,7 +51,7 @@ class ApplicationHandler:
 
     def run_application(self):
         print("Avant toute chose... tu pourrais m'indiquer ton pseudo bg ?")
-        pseudo = "PSEUDO COOOOOL" #input()
+        pseudo = input()
         print(f"Ok {pseudo}, c'est parti !")
 
         video = cv2.VideoCapture(0)
