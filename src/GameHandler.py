@@ -18,6 +18,9 @@ class GameHandler:
         self.draw = False
         self.player = player
         self.statistics_handler = statistics_handler
+        self.player_rounds_won = 0
+        self.computer_rounds_won = 0
+        self.rounds_played = 0
 
     def initialize_game(self):
         self.statistics_handler.increment_global_stats("games_played")
@@ -184,12 +187,12 @@ class GameHandler:
         return None
 
     def start_game(self, number_of_rounds):
-        rounds_played = 0
-        player_rounds_won = 0
-        computer_rounds_won = 0
-        while rounds_played < number_of_rounds:
+        self.rounds_played = 0
+        self.player_rounds_won = 0
+        self.computer_rounds_won = 0
+        while self.rounds_played < number_of_rounds:
 
-            posture_player, posture_computer = self.get_round_postures(rounds_played, number_of_rounds)
+            posture_player, posture_computer = self.get_round_postures(self.rounds_played, number_of_rounds)
 
             winner = self.get_winner(posture_player, posture_computer)
 
@@ -198,34 +201,34 @@ class GameHandler:
                                                 f"Bravo ! Tu remportes le round ({posture_player} > {posture_computer})",
                                                 seconds=3,
                                                 font=FONT_NORMAL)
-                player_rounds_won = player_rounds_won + 1
+                self.player_rounds_won += 1
             elif winner == COMPUTER_WIN:
                 display_blocking_message_center(self.video,
                                                 f"Dommage, l'ordinateur remporte le round ({posture_computer} > {posture_player})",
                                                 seconds=3,
                                                 font=FONT_NORMAL)
-                computer_rounds_won = computer_rounds_won + 1
+                self.computer_rounds_won += 1
             else:
                 display_blocking_message_center(self.video, f"Match nul ! Aucun gagnant ce round", seconds=3)
 
-            rounds_played = rounds_played + 1
+            self.rounds_played += 1
             self.statistics_handler.increment_global_stats("rounds_played")
 
             key = cv2.pollKey() & 0xFF
             if key == ord("q"):
                 raise GameInterruptedException
 
-        if player_rounds_won > computer_rounds_won:
+        if self.player_rounds_won > self.computer_rounds_won:
             display_blocking_message_center(self.video,
-                                            f"Victoire {player_rounds_won} rounds a {computer_rounds_won} !",
+                                            f"Victoire {self.player_rounds_won} rounds a {self.computer_rounds_won} !",
                                             seconds=4,
                                             font_color=(0, 255, 0))
             self.statistics_handler.increment_stats_player(self.player, "games_won")
             self.statistics_handler.increment_stats_player("computer", "games_lost")
 
-        elif computer_rounds_won > player_rounds_won:
+        elif self.computer_rounds_won > self.player_rounds_won:
             display_blocking_message_center(self.video,
-                                            f"Defaite {player_rounds_won} rounds a {computer_rounds_won} ...",
+                                            f"Defaite {self.player_rounds_won} rounds a {self.computer_rounds_won} ...",
                                             seconds=4,
                                             font_color=(0, 0, 255))
             self.statistics_handler.increment_stats_player("computer", "games_won")
@@ -239,18 +242,18 @@ class GameHandler:
             self.statistics_handler.increment_stats_player(self.player, "games_even")
             self.statistics_handler.increment_stats_player("computer", "games_even")
 
-        self.log_rounds_to_stats(self.player, player_rounds_won, computer_rounds_won, rounds_played)
-        self.log_rounds_to_stats("computer", player_rounds_won, computer_rounds_won, rounds_played)
+        self.log_rounds_to_stats(self.player)
+        self.log_rounds_to_stats("computer")
         self.statistics_handler.write_stats()
 
-    def log_rounds_to_stats(self, player, player_rounds_won, computer_rounds_won, rounds_played):
-        self.statistics_handler.increment_stats_player(player, "rounds_won", player_rounds_won)
-        self.statistics_handler.increment_stats_player(player, "rounds_lost", computer_rounds_won)
+    def log_rounds_to_stats(self, player):
+        self.statistics_handler.increment_stats_player(player, "rounds_won", self.player_rounds_won)
+        self.statistics_handler.increment_stats_player(player, "rounds_lost", self.computer_rounds_won)
         self.statistics_handler.increment_stats_player(player, "rounds_even",
-                                                       rounds_played - player_rounds_won - computer_rounds_won)
+                                                       self.rounds_played - self.player_rounds_won - self.computer_rounds_won)
 
-    def get_round_postures(self, rounds_played, number_of_rounds):
-        display_blocking_message_center(self.video, f"Round {rounds_played + 1} / {number_of_rounds}",
+    def get_round_postures(self, number_of_rounds):
+        display_blocking_message_center(self.video, f"Round {self.rounds_played + 1} / {number_of_rounds}",
                                         seconds=2,
                                         font_color=(255, 0, 0))
 
