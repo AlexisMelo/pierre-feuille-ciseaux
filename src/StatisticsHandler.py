@@ -11,8 +11,10 @@ from src.utils import display_non_blocking_message_top_center, display_non_block
 default_dict = {
     "games_played": 0,
     "games_abandoned": 0,
+    "games_even":0,
     "players": {},
-    "rounds_expected_to_be_played": 0
+    "rounds_expected_to_be_played": 0,
+    "rounds_played": 0
 }
 
 

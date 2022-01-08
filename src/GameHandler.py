@@ -46,7 +46,7 @@ class GameHandler:
 
     def get_number_of_rounds(self):
         """"
-            Loop while the user hasnt shown a valid posture for more than X frames,
+            Loop while the user hasnt shown a valid posture for more than X seconds,
             return an integer between 1 and 5
         """
         number_of_rounds = 0
