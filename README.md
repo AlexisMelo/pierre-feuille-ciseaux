@@ -2,7 +2,7 @@
 
 ## Description du projet
 
-Ce projet a été fait dans le cadre de l'EC IHME (Interaction Homme Machine Évoluée) qui est un cours de 5ème année de département ITI (Informatique et Technologie de l'Information) de l'INSA Rouen Normandie.
+Ce projet a été fait dans le cadre de l'EC IHME (Interaction Homme-Machines Evoluées) qui est un cours de 5ème année de département ITI (Informatique et Technologie de l'Information) de l'INSA Rouen Normandie.
 
 Le projet consiste en la conception d'un jeu du "Pierre Feuille Ciseaux" contre l'ordinateur dans lequel l'utilisateur interagit avec le programme via des gestes et des postures (pas besoin du clavier).
 
@@ -12,7 +12,7 @@ Mettre à jour pip si besoin : `curl https://bootstrap.pypa.io/get-pip.py | pyth
 
 Installer virtualenv si besoin : `sudo pip3 install virtualenv`
 
-Se placer à la racine du dépôt, et créer un environement virtuel : `python3 -m venv venv`
+Se placer à la racine du dépôt, et créer un environnement virtuel : `python3 -m venv venv`
 
 Activer l'environnement virtuel : `source venv/bin/activate`
 
@@ -20,12 +20,12 @@ Installer les librairies nécessaires : `pip3 install -r requirements.txt`
 
 Désactiver l'environnement virtuel : `deactivate`
 
-Mettre à jour les libraries nécessaires : `pip freeze > requirements.txt`
+Mettre à jour les librairies nécessaires : `pip freeze > requirements.txt`
 
 ## Lancer le programme
 
 **Prérequis :**
-- Vous devez possèder une webcam (si vous possèdez plusieurs webcam, la webcam par défaut sera utilisée). 
+- Vous devez posséder une webcam (si vous possédez plusieurs webcam, la webcam par défaut sera utilisée). 
 - La webcam ne doit pas déjà être utilisée au lancement du programme.
 
 Activer l'environnement virtuel : `source venv/bin/activate`
@@ -64,46 +64,47 @@ Un symbole aléatoire est choisi par l'ordinateur : le vainqueur du round marque
 
 À la fin des rounds, celui qui a marqué le plus de points a gagné.
 
-Les informations de la parties (coups joués, victoire/défaite, ...) sont enregistrées dans les statistiques.
+Les informations de la partie (coups joués, victoire/défaite, ...) sont enregistrées dans les statistiques.
 
 ### 2. Accès aux statistiques
 
-Pour accèder aux statistiques, effectuez un swipe depuis l'écran principal un swipe du haut de l'écran vers le bas de l'écran.
+Pour accéder aux statistiques, effectuez un swipe depuis l'écran principal du haut de l'écran vers le bas de l'écran.
 
 Les statistiques s'affichent :
 - 1ère colonne : **statistiques du joueur** ayant entré son pseudo au lancement du programme (nb de victoires, symboles les plus joués, ...)
 - 2ème colonne : **statistiques du programme** (nb de parties, ...)
 - 3ème colonne : **statistiques de l'ordinateur**  (nb de victoires, symboles les plus joués, ...)
   
+
 Les statistiques restent affichées pendant une dizaines de secondes, puis disparaissent pour laisser de nouveau place à l'écran principal.
 
 ### 3. Fermeture du programme
 
 Depuis l'écran principal il est possible de fermer le programme. Pour cela ouvrez grand l'une de vos mains, puis refermez-là.
 
-## Trouble shooting
+## Troubleshooting
 
 Il peut arriver que le programme ne détecte pas correctement vos gestes et postures. Le plus souvent, c'est que votre main n'est pas correctement détectée. 
 Vous pouvez vérifier si votre main est correctement détectée en activant l'affichage du squelette de la main (touche `d`) :  les marqueurs doivent correctement se superposer à votre main, sans quoi il est normal que la reconnaissance ne fonctionne pas.
 
-Si les marqueurs sont correctement placésn mais que la reconnaissance ne fonctionne tout de même pas, suivez ces conseils :
+Si les marqueurs sont correctement placés mais que la reconnaissance ne fonctionne tout de même pas, suivez ces conseils :
 
-- Ne montrez qu'une seule main à la caméra
-- Placez-vous ni trop proche, ni trop loin de votre caméra
-- Placez-vous dans des conditions de luminosité suffisante
-- Limitez la complexité de l'arrière plan
+- Ne montrez **qu'une seule main** à la caméra ;
+- Placez-vous ni trop proche, ni trop loin de votre caméra ;
+- Placez-vous dans des conditions de luminosité suffisante ;
+- Limitez la complexité de l'arrière plan ;
 - Votre main doit être de préférence paume face à la caméra.
 
-Si toutefois les problèmes persistent, reportez-vous aux sectionq suivantes.
+Si toutefois les problèmes persistent, reportez-vous aux sections suivantes.
 
 ### Mauvaise reconnaissance du geste
 
-Votre main (gauche ou droite) doit être de préférence paume face à la caméra 
+Votre main (gauche ou droite) doit être de préférence paume face à la caméra.
 
 Pour les swipes, essayez les conseils suivants :
-- Votre main doit être de préférence ouverte
-- Votre main ne doit pas sortir du cadre
-- Le bas de votre paume doit être visible à tout instant
+- Votre main doit être de préférence ouverte ;
+- Votre main ne doit pas sortir du cadre ;
+- Le bas de votre paume doit être visible à tout instant ;
 - Pour lancer la partie :
   - Partez bien du bord gauche vers le bord droit
   - Si le swipe de gauche à droite ne fonctionne vraiment pas, votre caméra est peut-être inversée : essayez de swiper de la droite vers la gauche.
@@ -120,9 +121,9 @@ Pour quitter le programme, essayez le conseil suivant:
 Essayez les conseils suivants :
 - Votre main (gauche ou droite) doit être de préférence paume face à la caméra.
 - Votre main doit être orientée doigts vers le haut.
-- Le nombre de rounds ne peut-être compris qu'entre 1 inclu et 5 inclu 
+- Le nombre de rounds ne peut-être compris qu'entre 1 inclus et 5 inclus 
 
-*Remarque : pour les nombres inférieures ou égaux à 4, ils peuvent être indiqués avec n'importe quelle combinaison de doigts.*
+*Remarque : pour les nombres inférieurs ou égaux à 4, ils peuvent être indiqués avec n'importe quelle combinaison de doigts.*
 
 ### Mauvaise reconnaissance du symbole
 
@@ -130,6 +131,7 @@ Conseils généraux :
 - Votre main (gauche ou droite) doit être de préférence paume face à la caméra.
 - Votre main doit être orientée de préférence doigts vers le haut.
   
+
 Pour le symbole "Pierre", essayez le conseil suivant :
 - Votre pouce ne doit de préférence pas être caché par vos autres doigts : placez-le sur votre index.
 
