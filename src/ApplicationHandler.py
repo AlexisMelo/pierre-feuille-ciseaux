@@ -10,13 +10,13 @@ from src.utils import display_blocking_message_center, display_non_blocking_mess
 
 
 def _is_hand_at_bottom(landmarks: Landmarks):
-    if landmarks.is_not_none() and landmarks.get_keypoint_y(0) > 0.6:
+    if landmarks.is_not_none() and landmarks.get_keypoint_y(0) > 0.7:
         return True
     return False
 
 
 def _is_hand_at_top(landmarks: Landmarks):
-    if landmarks.is_not_none() and landmarks.get_keypoint_y(10) < 0.4:
+    if landmarks.is_not_none() and landmarks.get_keypoint_y(10) < 0.3:
         return True
     return False
 
