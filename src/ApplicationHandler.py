@@ -16,7 +16,7 @@ def _is_hand_at_bottom(landmarks: Landmarks):
 
 
 def _is_hand_at_top(landmarks: Landmarks):
-    if landmarks.is_not_none() and landmarks.get_keypoint_y(0) < 0.4:
+    if landmarks.is_not_none() and landmarks.get_keypoint_y(10) < 0.4:
         return True
     return False
 
